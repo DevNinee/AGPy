@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AGPy — Gráficos dinâmicos de indicadores geopolíticos.">
+    <title>AGPy - Graficos</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+</head>
+<body>
+
+<header>
+    <h1><a href="/" style="text-decoration: none; color: inherit;">AGPy</a></h1>
+    <nav>
+        <a href="/">Início</a>
+        <a href="/ranking/">Ranking</a>
+        <a href="/comparar/">Comparar</a>
+        <a href="/graficos/" class="active">Graficos</a>
+        <a href="/historico/">Histórico</a>
+        <a href="/mapa/">Mapa</a>
+        <a href="/classificacao/">Classificação</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <h2>Graficos de Indicadores</h2>
+
+    <div class="toolbar">
+        <form id="form-grafico" method="GET" style="display: flex; gap: 10px; align-items: center;">
+            <select name="fonte" onchange="document.getElementById('form-grafico').submit()" style="background:#1c2128; border: 1px solid #388bfd; border-radius:6px; color:#e6edf3; padding: 6px 12px; font-weight:600; cursor:pointer;">
+                <option value="csv" {% if request.GET.fonte == 'csv' or not request.GET.fonte %}selected{% endif %}>Fonte: Top 10 Local (CSV)</option>
+                <option value="api" {% if request.GET.fonte == 'api' %}selected{% endif %}>Fonte: Top 15 Mundo (API)</option>
+            </select>
+            <span style="color: var(--text-secondary); margin: 0 8px;">|</span>
+            <label for="indicador" style="color: var(--text-secondary);">Visualizar por:</label>
+            <select name="indicador" id="indicador" onchange="document.getElementById('form-grafico').submit()">
+                {% for ind in indicadores %}
+                <option value="{{ ind.valor }}" {% if indicador_atual == ind.valor %}selected{% endif %}>{{ ind.label }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    {% if imagem %}
+    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;">
+        <img src="data:image/png;base64,{{ imagem }}" alt="Grafico de {{ indicador_atual }}"
+             style="width:100%; border:none; border-radius:0; box-shadow:none; margin:0;">
+    </div>
+    {% endif %}
+
+</div>
+
+        <script>
+            // Bloquear IDH no Modo API
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('form-grafico');
+                if(!form) return;
+                const fonteSelect = form.querySelector('select[name="fonte"]');
+                const indSelect = form.querySelector('select[name="indicador"]');
+                
+                function toggleIDH() {
+                    const idhOption = indSelect.querySelector('option[value="idh"]');
+                    if (!idhOption) return;
+                    if (fonteSelect.value === 'api') {
+                        if (indSelect.value === 'idh') {
+                            indSelect.value = 'pib';
+                        }
+                        idhOption.disabled = true;
+                        idhOption.text = 'IDH (Apenas Local)';
+                    } else {
+                        idhOption.disabled = false;
+                        idhOption.text = 'IDH por País';
+                    }
+                }
+                
+                fonteSelect.addEventListener('change', toggleIDH);
+                toggleIDH();
+            });
+        </script>
+
+<footer>
+    <p><strong>AGPy</strong> — Sistema de Análise Geopolítica de Países</p>
+    <p class="footer-sources">Dados: <a href="https://data.worldbank.org" target="_blank">Banco Mundial</a> · <a href="https://restcountries.com" target="_blank">RestCountries</a> · Python · Django · Pandas · Scikit-learn</p>
+</footer>
+
+    </body>
+</html>

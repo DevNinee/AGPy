@@ -1,0 +1,704 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGPytitle>
+        <!-- Leaflet CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="/static/css/style.css">
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                overflow: hidden;
+                font-family: Inter, sans-serif;
+            }
+
+            /* O Mapa Ocupa a Tela Toda */
+            #map {
+                width: 100%;
+                height: 100%;
+                background: #161b22;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 1;
+            }
+
+            /* Header Sobreposto no Topo */
+            .header-mapa {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                background: rgba(28, 33, 40, 0.85);
+                backdrop-filter: blur(10px);
+                padding: 12px 24px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .header-mapa h1 {
+                margin: 0;
+                font-size: 1.2rem;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            /* Controles de Filtro no Header */
+            .filtros-mapa {
+                display: flex;
+                gap: 12px;
+            }
+
+            .filtros-mapa select {
+                background: #21262d;
+                color: #c9d1d9;
+                border: 1px solid #30363d;
+                border-radius: 6px;
+                padding: 6px 12px;
+                font-family: Inter;
+                outline: none;
+                cursor: pointer;
+            }
+
+            /* Nav no Header */
+            .header-nav a {
+                color: #8b949e;
+                text-decoration: none;
+                margin-left: 16px;
+                font-size: 0.9rem;
+                font-weight: 500;
+                transition: color 0.2s;
+            }
+
+            .header-nav a:hover,
+            .header-nav a.ativo {
+                color: #fff;
+            }
+
+            /* Legenda no canto inferior esquerdo */
+            .legenda {
+                position: absolute;
+                bottom: 30px;
+                left: 30px;
+                z-index: 1000;
+                background: rgba(28, 33, 40, 0.9);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 15px;
+                color: #c9d1d9;
+                font-size: 0.85rem;
+                backdrop-filter: blur(5px);
+            }
+
+            .legenda-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 6px;
+            }
+
+            .legenda-dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 3px;
+            }
+
+            /* Painel Flutuante (Estilo IBGE) */
+            .painel-flutuante {
+                position: absolute;
+                top: 80px;
+                right: 20px;
+                z-index: 1000;
+                width: 360px;
+                max-height: calc(100vh - 100px);
+                background: #1c2128;
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                transition: transform 0.3s;
+                transform: translateX(400px);
+                /* Escondido por padrão */
+            }
+
+            .painel-flutuante.aberto {
+                transform: translateX(0);
+            }
+
+            /* Botão Fechar */
+            .btn-fechar {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: none;
+                border: none;
+                color: #8b949e;
+                font-size: 1.2rem;
+                cursor: pointer;
+                z-index: 10;
+            }
+
+            .btn-fechar:hover {
+                color: #fff;
+            }
+
+            /* Abas */
+            .abas {
+                display: flex;
+                background: #21262d;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .aba {
+                flex: 1;
+                text-align: center;
+                padding: 12px 0;
+                cursor: pointer;
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: #8b949e;
+                border-bottom: 2px solid transparent;
+                transition: all 0.2s;
+            }
+
+            .aba.ativa {
+                color: #fff;
+                border-bottom-color: #388bfd;
+                background: #1c2128;
+            }
+
+            /* Conteúdo das Abas */
+            .conteudo-aba {
+                padding: 20px;
+                overflow-y: auto;
+                flex: 1;
+                display: none;
+            }
+
+            .conteudo-aba.ativa {
+                display: block;
+            }
+
+            /* Estilos da Aba Síntese */
+            .sintese-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+
+            .sintese-bandeira {
+                width: 60px;
+                height: 40px;
+                background: #30363d;
+                border-radius: 4px;
+                border: 1px solid var(--border);
+                object-fit: cover;
+            }
+
+            .sintese-titulo {
+                margin: 0;
+                font-size: 1.4rem;
+                color: #fff;
+            }
+
+            .sintese-regiao {
+                margin: 0;
+                font-size: 0.85rem;
+                color: #8b949e;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .dado-linha {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 0;
+                border-bottom: 1px solid #30363d;
+                font-size: 0.9rem;
+            }
+
+            .dado-label {
+                color: #8b949e;
+            }
+
+            .dado-valor {
+                color: #fff;
+                font-weight: 600;
+                text-align: right;
+            }
+
+            /* Estilos da Aba Ranking */
+            .tabela-ranking {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.85rem;
+            }
+
+            .tabela-ranking th {
+                text-align: left;
+                padding: 8px 4px;
+                color: #8b949e;
+                border-bottom: 1px solid #30363d;
+            }
+
+            .tabela-ranking td {
+                padding: 10px 4px;
+                border-bottom: 1px solid #30363d;
+                color: #c9d1d9;
+                cursor: pointer;
+            }
+
+            .tabela-ranking tr:hover td {
+                background: #21262d;
+            }
+
+            .tabela-ranking td:last-child {
+                text-align: right;
+                font-weight: 600;
+                color: #fff;
+            }
+
+            .posicao {
+                font-weight: bold;
+                color: #8b949e;
+                width: 20px;
+            }
+        </style>
+</head>
+
+<body>
+
+    <!-- Header Flutuante -->
+    <header class="header-mapa">
+        <h1>
+            <span
+                style="background: linear-gradient(135deg, #388bfd, #a371f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AGPy</span>
+            <span style="font-size: 0.9rem; color:#8b949e; font-weight: normal;">Países</span>
+        </h1>
+
+        <div class="filtros-mapa">
+            <form id="form-filtros" action="/mapa/" method="GET" style="display: flex; gap: 10px;">
+                <select name="indicador" onchange="document.getElementById('form-filtros').submit()">
+                    <option value="pib" selected>Colorir por: PIB</option>
+                    <option value="idh" >Colorir por: IDH</option>
+                    <option value="inflacao" >Colorir por:
+                        Inflação</option>
+                </select>
+                <select name="regiao" onchange="document.getElementById('form-filtros').submit()">
+                    <option value="">Todas as Regiões</option>
+                    
+                    <option value="América do Norte" >América do Norte</option>
+                    
+                    <option value="América do Sul" >América do Sul</option>
+                    
+                    <option value="Europa" >Europa</option>
+                    
+                    <option value="Oceania" >Oceania</option>
+                    
+                    <option value="Ásia" >Ásia</option>
+                    
+                </select>
+            </form>
+        </div>
+
+        <nav class="header-nav">
+            <a href="/">Início</a>
+            <a href="/ranking/">Ranking</a>
+            <a href="/comparar/">Comparar</a>
+            <a href="/graficos/">Gráficos</a>
+            <a href="/historico/">Histórico</a>
+            <a href="/mapa/" class="ativo">Mapa</a>
+        </nav>
+    </header>
+
+    <!-- Contêiner do Mapa -->
+    <div id="map"></div>
+
+    <!-- Legenda -->
+    <div class="legenda">
+        <div style="margin-bottom: 8px; font-weight: 600; color: #fff;">PIB</div>
+        
+        <div class="legenda-item">
+            <div class="legenda-dot" style="background:#3fb950;"></div> Alto (> 8.000 bi)
+        </div>
+        <div class="legenda-item">
+            <div class="legenda-dot" style="background:#f0883e;"></div> Médio
+        </div>
+        <div class="legenda-item">
+            <div class="legenda-dot" style="background:#f85149;"></div> Baixo
+        </div>
+        
+                <div class="legenda-item">
+                    <div class="legenda-dot" style="background:#30363d;"></div> Sem dados / Fora do filtro
+                </div>
+        </div>
+
+        <!-- Painel Flutuante Direito -->
+        <div class="painel-flutuante" id="painel">
+            <button class="btn-fechar" onclick="fecharPainel()">✕</button>
+
+            <div class="abas">
+                <div class="aba ativa" id="aba-sintese-btn" onclick="mudarAba('sintese')">SÍNTESE</div>
+                <div class="aba" id="aba-ranking-btn" onclick="mudarAba('ranking')">RANKING</div>
+            </div>
+
+            <!-- Aba Síntese -->
+            <div class="conteudo-aba ativa" id="aba-sintese">
+                <div id="mensagem-selecione" style="color:#8b949e; text-align:center; padding: 40px 0;">
+                    Selecione um país no mapa para ver a síntese.
+                </div>
+
+                <div id="dados-pais" style="display: none;">
+                    <div class="sintese-header">
+                        <!-- Fallback flag -->
+                        <img id="pais-bandeira" class="sintese-bandeira" src="" alt="Bandeira"
+                            onerror="this.style.display='none'">
+                        <div>
+                            <h2 class="sintese-titulo" id="pais-nome">Brasil</h2>
+                            <p class="sintese-regiao" id="pais-regiao">América do Sul</p>
+                        </div>
+                    </div>
+
+                    <div class="dado-linha">
+                        <span class="dado-label">PIB</span>
+                        <span class="dado-valor">US$ <span id="pais-pib"></span> bi</span>
+                    </div>
+                    <div class="dado-linha">
+                        <span class="dado-label">Inflação</span>
+                        <span class="dado-valor"><span id="pais-inflacao"></span>%</span>
+                    </div>
+                    <div class="dado-linha">
+                        <span class="dado-label">IDH</span>
+                        <span class="dado-valor" id="pais-idh"></span>
+                    </div>
+                    <div class="dado-linha">
+                        <span class="dado-label">Estabilidade (1-10)</span>
+                        <span class="dado-valor" id="pais-estabilidade"></span>
+                    </div>
+                    <div class="dado-linha" style="border-bottom:none; flex-direction:column; gap:8px;">
+                        <span class="dado-label">Relações Internacionais</span>
+                        <span class="dado-valor" id="pais-relacoes"
+                            style="text-align:left; font-size:0.85rem; font-weight:normal;"></span>
+                    </div>
+
+                    <a id="link-perfil" href="#"
+                        style="display:block; margin-top:20px; background:#21262d; color:#c9d1d9; text-align:center; padding:10px; border-radius:6px; text-decoration:none; font-size:0.9rem; border:1px solid #30363d; transition:0.2s;">
+                        Ver perfil detalhado
+                    </a>
+                </div>
+            </div>
+
+            <!-- Aba Ranking -->
+            <div class="conteudo-aba" id="aba-ranking">
+                <table class="tabela-ranking">
+                    <thead>
+                        <tr>
+                            <th colspan="2">País</th>
+                            <th style="text-align:right;">PIB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr onclick="abrirPainel('Estados Unidos')">
+                            <td class="posicao">1º</td>
+                            <td>Estados Unidos</td>
+                            <td>
+                                
+                                US$ 25000
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr onclick="abrirPainel('China')">
+                            <td class="posicao">2º</td>
+                            <td>China</td>
+                            <td>
+                                
+                                US$ 18000
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr onclick="abrirPainel('Japão')">
+                            <td class="posicao">3º</td>
+                            <td>Japão</td>
+                            <td>
+                                
+                                US$ 5000
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr onclick="abrirPainel('Alemanha')">
+                            <td class="posicao">4º</td>
+                            <td>Alemanha</td>
+                            <td>
+                                
+                                US$ 4200
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr onclick="abrirPainel('Índia')">
+                            <td class="posicao">5º</td>
+                            <td>Índia</td>
+                            <td>
+                                
+                                US$ 3500
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr onclick="abrirPainel('Reino Unido')">
+                            <td class="posicao">6º</td>
+                            <td>Reino Unido</td>
+                            <td>
+                                
+                                US$ 3100
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr onclick="abrirPainel('França')">
+                            <td class="posicao">7º</td>
+                            <td>França</td>
+                            <td>
+                                
+                                US$ 3000
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr onclick="abrirPainel('Canadá')">
+                            <td class="posicao">8º</td>
+                            <td>Canadá</td>
+                            <td>
+                                
+                                US$ 2100
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr onclick="abrirPainel('Brasil')">
+                            <td class="posicao">9º</td>
+                            <td>Brasil</td>
+                            <td>
+                                
+                                US$ 1900
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr onclick="abrirPainel('Austrália')">
+                            <td class="posicao">10º</td>
+                            <td>Austrália</td>
+                            <td>
+                                
+                                US$ 1700
+                                
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+        <!-- Injeção segura dos dados JSON do Django -->
+        <script id="paises-data" type="application/json">"[{\"nome\": \"Brasil\", \"regiao\": \"Am\\u00e9rica do Sul\", \"pib\": 1900, \"inflacao\": 5.0, \"idh\": 0.76, \"estabilidade\": 6.0, \"relacoes_internacionais\": \"G20 e BRICS\"}, {\"nome\": \"Estados Unidos\", \"regiao\": \"Am\\u00e9rica do Norte\", \"pib\": 25000, \"inflacao\": 3.0, \"idh\": 0.92, \"estabilidade\": 8.5, \"relacoes_internacionais\": \"G7 e OTAN\"}, {\"nome\": \"China\", \"regiao\": \"\\u00c1sia\", \"pib\": 18000, \"inflacao\": 2.5, \"idh\": 0.78, \"estabilidade\": 7.0, \"relacoes_internacionais\": \"G20 e BRICS\"}, {\"nome\": \"Alemanha\", \"regiao\": \"Europa\", \"pib\": 4200, \"inflacao\": 2.0, \"idh\": 0.94, \"estabilidade\": 9.0, \"relacoes_internacionais\": \"G7 e Uni\\u00e3o Europeia\"}, {\"nome\": \"\\u00cdndia\", \"regiao\": \"\\u00c1sia\", \"pib\": 3500, \"inflacao\": 6.0, \"idh\": 0.64, \"estabilidade\": 5.5, \"relacoes_internacionais\": \"G20 e BRICS\"}, {\"nome\": \"Jap\\u00e3o\", \"regiao\": \"\\u00c1sia\", \"pib\": 5000, \"inflacao\": 1.5, \"idh\": 0.91, \"estabilidade\": 8.8, \"relacoes_internacionais\": \"G7\"}, {\"nome\": \"Canad\\u00e1\", \"regiao\": \"Am\\u00e9rica do Norte\", \"pib\": 2100, \"inflacao\": 2.2, \"idh\": 0.93, \"estabilidade\": 8.7, \"relacoes_internacionais\": \"G7 e OTAN\"}, {\"nome\": \"Fran\\u00e7a\", \"regiao\": \"Europa\", \"pib\": 3000, \"inflacao\": 2.1, \"idh\": 0.9, \"estabilidade\": 8.6, \"relacoes_internacionais\": \"G7 e Uni\\u00e3o Europeia\"}, {\"nome\": \"Reino Unido\", \"regiao\": \"Europa\", \"pib\": 3100, \"inflacao\": 2.3, \"idh\": 0.91, \"estabilidade\": 8.4, \"relacoes_internacionais\": \"G7 e OTAN\"}, {\"nome\": \"Austr\\u00e1lia\", \"regiao\": \"Oceania\", \"pib\": 1700, \"inflacao\": 2.4, \"idh\": 0.92, \"estabilidade\": 8.9, \"relacoes_internacionais\": \"G20\"}]"</script>
+        <script id="cores-data" type="application/json">"{\"Brasil\": \"#f85149\", \"Estados Unidos\": \"#3fb950\", \"China\": \"#3fb950\", \"Alemanha\": \"#f85149\", \"\\u00cdndia\": \"#f85149\", \"Jap\\u00e3o\": \"#f85149\", \"Canad\\u00e1\": \"#f85149\", \"Fran\\u00e7a\": \"#f85149\", \"Reino Unido\": \"#f85149\", \"Austr\\u00e1lia\": \"#f85149\"}"</script>
+
+        <script>
+            // Captura de erros globais para debug
+            window.addEventListener("error", function(e) {
+                console.error("Erro JS:", e.message, "na linha", e.lineno);
+                alert("Erro ao carregar o mapa: " + e.message);
+            });
+
+            // Parse seguro dos dados injetados pelo Django
+            const paisesString = document.getElementById('paises-data').textContent;
+            const coresString = document.getElementById('cores-data').textContent;
+            
+            // O Django enviou como string JSON dentro de outra string JSON (por causa do json.dumps no views.py)
+            // Se o JSON for uma string, faremos parse duplo para garantir que vire Objeto.
+            let paisesDados = JSON.parse(paisesString);
+            if (typeof paisesDados === "string") paisesDados = JSON.parse(paisesDados);
+
+            let coresPaises = JSON.parse(coresString);
+            if (typeof coresPaises === "string") coresPaises = JSON.parse(coresPaises);
+
+            // Inicializa o Mapa
+            const map = L.map('map', {
+                zoomControl: false // Movemos o zoom para não conflitar com a legenda
+            }).setView([20, 0], 3);
+
+            L.control.zoom({ position: 'topleft' }).addTo(map);
+
+            // TileLayer escuro do CartoDB (sem chaves necessárias)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 10
+            }).addTo(map);
+
+            // Carregar o GeoJSON do mundo
+            fetch('/static/mapa/world.json')
+                .then(response => response.json())
+                .then(data => {
+                    L.geoJSON(data, {
+                        style: function (feature) {
+                            const nome = feature.properties.name;
+                            // Mapeamento especial se os nomes diferirem, mas como validamos, são idênticos.
+                            // USA e UK precisam de tratamento no geojson: "United States of America" e "United Kingdom"
+                            let nomeTabela = nome;
+                            if (nome === "United States of America") nomeTabela = "Estados Unidos";
+                            if (nome === "United Kingdom") nomeTabela = "Reino Unido";
+                            if (nome === "Brazil") nomeTabela = "Brasil";
+                            if (nome === "Germany") nomeTabela = "Alemanha";
+                            if (nome === "India") nomeTabela = "Índia";
+                            if (nome === "Japan") nomeTabela = "Japão";
+                            if (nome === "Canada") nomeTabela = "Canadá";
+                            if (nome === "France") nomeTabela = "França";
+                            if (nome === "Australia") nomeTabela = "Austrália";
+
+                            const cor = coresPaises[nomeTabela] || "#161b22"; // Transparente/Fundo se não tiver dados
+                            const opacidade = coresPaises[nomeTabela] && coresPaises[nomeTabela] !== "#30363d" ? 0.8 : 0.2;
+                            const strokeColor = coresPaises[nomeTabela] ? "#8b949e" : "#30363d";
+
+                            return {
+                                fillColor: cor,
+                                weight: 1,
+                                opacity: 1,
+                                color: strokeColor,
+                                fillOpacity: opacidade
+                            };
+                        },
+                        onEachFeature: function (feature, layer) {
+                            let nome = feature.properties.name;
+                            if (nome === "United States of America") nome = "Estados Unidos";
+                            if (nome === "United Kingdom") nome = "Reino Unido";
+                            if (nome === "Brazil") nome = "Brasil";
+                            if (nome === "Germany") nome = "Alemanha";
+                            if (nome === "India") nome = "Índia";
+                            if (nome === "Japan") nome = "Japão";
+                            if (nome === "Canada") nome = "Canadá";
+                            if (nome === "France") nome = "França";
+                            if (nome === "Australia") nome = "Austrália";
+
+                            // Apenas adiciona evento de clique se o país estiver nos nossos dados
+                            if (coresPaises[nome]) {
+                                // Tooltip hover
+                                layer.bindTooltip(nome, { className: 'custom-tooltip', sticky: true });
+
+                                // Clique no mapa
+                                layer.on('click', function () {
+                                    abrirPainel(nome);
+                                    // Highlight (Efeito visual)
+                                    layer.setStyle({ weight: 3, color: '#fff' });
+                                    setTimeout(() => { layer.setStyle({ weight: 1, color: '#8b949e' }); }, 1500);
+                                });
+                            }
+                        }
+                    }).addTo(map);
+
+                    // Abre o painel automaticamente na aba ranking
+                    document.getElementById('painel').classList.add('aberto');
+                    mudarAba('ranking');
+                })
+                .catch(err => {
+                    console.error("Erro ao baixar world.json:", err);
+                    alert("Não foi possível carregar as fronteiras do mapa.");
+                });
+
+            // Lógica do Painel
+            function abrirPainel(nomePais) {
+                const pais = paisesDados.find(p => p.nome === nomePais);
+                if (!pais) return;
+
+                document.getElementById('mensagem-selecione').style.display = 'none';
+                document.getElementById('dados-pais').style.display = 'block';
+
+                document.getElementById('pais-nome').textContent = pais.nome;
+                document.getElementById('pais-regiao').textContent = pais.regiao;
+                document.getElementById('pais-pib').textContent = pais.pib;
+                document.getElementById('pais-inflacao').textContent = pais.inflacao;
+                document.getElementById('pais-idh').textContent = pais.idh;
+                document.getElementById('pais-estabilidade').textContent = pais.estabilidade;
+                document.getElementById('pais-relacoes').textContent = pais.relacoes_internacionais;
+
+                document.getElementById('link-perfil').href = `/buscar/?q=${pais.nome}`;
+
+                // Bandeira (Usando API pública RestCountries baseada no nome)
+                // Para simplificar, usamos siglas para a URL da bandeira
+                const siglas = {
+                    "Brasil": "br", "Estados Unidos": "us", "China": "cn",
+                    "Alemanha": "de", "Índia": "in", "Japão": "jp",
+                    "Canadá": "ca", "França": "fr", "Reino Unido": "gb", "Austrália": "au"
+                };
+                const sigla = siglas[pais.nome];
+                if (sigla) {
+                    document.getElementById('pais-bandeira').style.display = 'block';
+                    document.getElementById('pais-bandeira').src = `https://flagcdn.com/w80/${sigla}.png`;
+                } else {
+                    document.getElementById('pais-bandeira').style.display = 'none';
+                }
+
+                mudarAba('sintese');
+                document.getElementById('painel').classList.add('aberto');
+            }
+
+            function fecharPainel() {
+                document.getElementById('painel').classList.remove('aberto');
+            }
+
+            function mudarAba(aba) {
+                document.getElementById('aba-sintese-btn').classList.remove('ativa');
+                document.getElementById('aba-ranking-btn').classList.remove('ativa');
+                document.getElementById('aba-sintese').classList.remove('ativa');
+                document.getElementById('aba-ranking').classList.remove('ativa');
+
+                document.getElementById(`aba-${aba}-btn`).classList.add('ativa');
+                document.getElementById(`aba-${aba}`).classList.add('ativa');
+            }
+        </script>
+
+        <style>
+            /* CSS para o tooltip do leaflet */
+            .leaflet-tooltip.custom-tooltip {
+                background: #1c2128;
+                border: 1px solid #30363d;
+                color: #fff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-family: Inter, sans-serif;
+                font-weight: 600;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            }
+
+            .leaflet-tooltip.custom-tooltip::before {
+                border-top-color: #30363d;
+            }
+        </style>
+
+</body>
+
+</html>

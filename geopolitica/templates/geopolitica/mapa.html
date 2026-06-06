@@ -1,0 +1,1273 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGPy - Mapa Geopolítico</title>
+        <!-- Leaflet CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                overflow: hidden;
+                font-family: Inter, sans-serif;
+            }
+
+            /* O Mapa Ocupa o Wrapper todo */
+            #map {
+                width: 100%;
+                height: 100%;
+                background: #161b22;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 1;
+            }
+
+            /* Remove a borda quadrada (outline) ao clicar nos países do mapa */
+            path.leaflet-interactive:focus {
+                outline: none !important;
+            }
+
+            /* Layout Flex (Sidebar + Mapa) */
+            .layout-container {
+                display: flex;
+                height: 100vh;
+                width: 100vw;
+                overflow: hidden;
+            }
+
+            /* Sidebar Esquerda */
+            .sidebar-esquerda {
+                width: 280px;
+                background: #161b22;
+                border-right: 1px solid var(--border);
+                display: flex;
+                flex-direction: column;
+                z-index: 1000;
+                padding: 20px 0;
+                box-sizing: border-box;
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar-esquerda.fechada {
+                transform: translateX(-100%);
+                position: absolute;
+                height: 100%;
+            }
+
+            /* Botão de Toggle da Sidebar (Fica fora da sidebar) */
+            .btn-toggle-sidebar {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                z-index: 900;
+                background: #161b22;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                padding: 10px;
+                color: #c9d1d9;
+                cursor: pointer;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                transition: background 0.2s;
+            }
+            .btn-toggle-sidebar:hover {
+                background: #21262d;
+            }
+
+            .sidebar-esquerda h1 {
+                margin: 0 20px 30px 20px;
+                font-size: 1.5rem;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                justify-content: space-between;
+            }
+
+            .btn-fechar-sidebar {
+                background: none;
+                border: none;
+                color: #8b949e;
+                cursor: pointer;
+                font-size: 1.2rem;
+            }
+            .btn-fechar-sidebar:hover {
+                color: #fff;
+            }
+
+            /* Nav Vertical */
+            .sidebar-nav {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 30px;
+            }
+
+            .sidebar-nav a {
+                color: #8b949e;
+                text-decoration: none;
+                padding: 12px 20px;
+                font-size: 0.95rem;
+                font-weight: 500;
+                transition: background 0.2s, color 0.2s;
+                border-left: 3px solid transparent;
+            }
+
+            .sidebar-nav a:hover,
+            .sidebar-nav a.ativo {
+                color: #fff;
+                background: rgba(56, 139, 253, 0.1);
+                border-left-color: #388bfd;
+            }
+
+            .filtros-container {
+                padding: 0 20px;
+            }
+
+            .filtros-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                user-select: none;
+                margin-bottom: 16px;
+                background: rgba(56, 139, 253, 0.08);
+                padding: 12px 14px;
+                border-radius: 8px;
+                border: 1px solid rgba(56, 139, 253, 0.25);
+                transition: background 0.2s, border-color 0.2s;
+            }
+
+            .filtros-header label {
+                margin-bottom: 0;
+                color: #58a6ff;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .filtros-header:hover {
+                background: rgba(56, 139, 253, 0.14);
+                border-color: rgba(56, 139, 253, 0.45);
+            }
+
+            .filtros-mapa {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                overflow: hidden;
+                transition: max-height 0.3s ease, opacity 0.3s ease;
+                max-height: 600px;
+                opacity: 1;
+            }
+
+            .filtros-mapa.escondido {
+                max-height: 0;
+                opacity: 0;
+            }
+
+            /* Cada filtro vira um grupo com rótulo + ícone próprio */
+            .filtro-grupo {
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+            }
+
+            .filtro-grupo > label {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                font-size: 0.72rem;
+                text-transform: uppercase;
+                letter-spacing: 0.6px;
+                font-weight: 600;
+                color: #8b949e;
+            }
+
+            .filtro-grupo > label svg {
+                opacity: 0.65;
+                flex-shrink: 0;
+            }
+
+            .filtros-mapa select,
+            .filtros-mapa input {
+                background: #0d1117;
+                color: #e6edf3;
+                border: 1px solid #30363d;
+                border-radius: 8px;
+                padding: 11px 14px;
+                font-family: Inter, sans-serif;
+                font-size: 0.9rem;
+                outline: none;
+                width: 100%;
+                box-sizing: border-box;
+                transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            }
+
+            /* Seta customizada nos selects (remove a nativa) */
+            .filtros-mapa select {
+                cursor: pointer;
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                padding-right: 38px;
+            }
+
+            .filtros-mapa select:hover,
+            .filtros-mapa input:hover {
+                border-color: #4b5563;
+            }
+
+            .filtros-mapa select:focus,
+            .filtros-mapa input:focus {
+                border-color: #388bfd;
+                box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.15);
+                background: #161b22;
+            }
+
+            .filtros-mapa input::placeholder {
+                color: #6e7681;
+            }
+
+            .filtros-mapa option:disabled {
+                color: #6e7681;
+            }
+
+            .filtros-mapa hr {
+                border: none;
+                border-top: 1px solid #21262d;
+                margin: 4px 0;
+            }
+
+            /* Container do Mapa */
+            .mapa-wrapper {
+                flex: 1;
+                position: relative;
+            }
+
+            /* Legenda no canto inferior esquerdo */
+            .legenda {
+                position: absolute;
+                bottom: 30px;
+                left: 30px;
+                z-index: 1000;
+                background: rgba(28, 33, 40, 0.9);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 15px;
+                color: #c9d1d9;
+                font-size: 0.85rem;
+                backdrop-filter: blur(5px);
+            }
+
+            .legenda-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 6px;
+            }
+
+            .legenda-dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 3px;
+            }
+
+            /* Painel Flutuante (Estilo IBGE) */
+            .painel-flutuante {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                z-index: 1000;
+                width: 360px;
+                max-height: calc(100vh - 40px);
+                background: #1c2128;
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                transition: transform 0.3s ease;
+                transform: translateX(120%); /* Escondido por padrão */
+            }
+
+            .painel-flutuante.aberto {
+                transform: translateX(0);
+            }
+
+            /* Botão de Toggle do Flutuante (Sempre visível na direita) */
+            .btn-toggle-flutuante {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                z-index: 900;
+                background: #161b22;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                padding: 10px 15px;
+                color: #c9d1d9;
+                cursor: pointer;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                transition: background 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-family: Inter, sans-serif;
+                font-weight: 500;
+            }
+            .btn-toggle-flutuante:hover {
+                background: #21262d;
+            }
+
+            /* Botão Fechar do Painel */
+            .btn-fechar {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: none;
+                border: none;
+                color: #8b949e;
+                font-size: 1.2rem;
+                cursor: pointer;
+                z-index: 10;
+            }
+
+            .btn-fechar:hover {
+                color: #fff;
+            }
+
+            /* Abas */
+            .abas {
+                display: flex;
+                background: #21262d;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .aba {
+                flex: 1;
+                text-align: center;
+                padding: 12px 0;
+                cursor: pointer;
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: #8b949e;
+                border-bottom: 2px solid transparent;
+                transition: all 0.2s;
+            }
+
+            .aba.ativa {
+                color: #fff;
+                border-bottom-color: #388bfd;
+                background: #1c2128;
+            }
+
+            /* Conteúdo das Abas */
+            .conteudo-aba {
+                padding: 20px;
+                overflow-y: auto;
+                flex: 1;
+                display: none;
+            }
+
+            .conteudo-aba.ativa {
+                display: block;
+            }
+
+            /* Estilos da Aba Síntese */
+            .sintese-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+
+            .sintese-bandeira {
+                width: 60px;
+                height: 40px;
+                background: #30363d;
+                border-radius: 4px;
+                border: 1px solid var(--border);
+                object-fit: cover;
+            }
+
+            .sintese-titulo {
+                margin: 0;
+                font-size: 1.4rem;
+                color: #fff;
+            }
+
+            .sintese-regiao {
+                margin: 0;
+                font-size: 0.85rem;
+                color: #8b949e;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .dado-linha {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 0;
+                border-bottom: 1px solid #30363d;
+                font-size: 0.9rem;
+            }
+
+            .dado-label {
+                color: #8b949e;
+            }
+
+            .dado-valor {
+                color: #fff;
+                font-weight: 600;
+                text-align: right;
+            }
+
+            /* Estilos da Aba Ranking */
+            .tabela-ranking {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.85rem;
+            }
+
+            .tabela-ranking th {
+                text-align: left;
+                padding: 8px 4px;
+                color: #8b949e;
+                border-bottom: 1px solid #30363d;
+            }
+
+            .tabela-ranking td {
+                padding: 10px 4px;
+                border-bottom: 1px solid #30363d;
+                color: #c9d1d9;
+                cursor: pointer;
+            }
+
+            .tabela-ranking tr:hover td {
+                background: #21262d;
+            }
+
+            .tabela-ranking td:last-child {
+                text-align: right;
+                font-weight: 600;
+                color: #fff;
+            }
+
+            /* Aba Comparação (Barras) */
+            .barra-container {
+                margin: 15px 0;
+            }
+
+            .barra-labels {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 5px;
+                font-size: 0.85rem;
+                color: #c9d1d9;
+            }
+
+            .barra-bg {
+                width: 100%;
+                height: 8px;
+                background: #30363d;
+                border-radius: 4px;
+                overflow: hidden;
+                display: flex;
+            }
+
+            .barra-fill-base {
+                height: 100%;
+                background: #388bfd;
+                transition: width 0.5s ease;
+            }
+
+            .barra-fill-alvo {
+                height: 100%;
+                background: #0d9488; /* teal-600 */
+                transition: width 0.5s ease;
+            }
+        </style>
+</head>
+
+<body>
+
+    <div class="layout-container">
+        
+        <!-- Botão para abrir sidebar quando fechada -->
+        <button class="btn-toggle-sidebar" id="btn-abrir-sidebar" style="display: none;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+
+        <!-- Dashboard Lateral Esquerda -->
+        <aside class="sidebar-esquerda" id="sidebar-esquerda">
+            <h1>
+                <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                    <span style="color: var(--text-primary); font-weight: 700;">AGPy</span>
+                    <span style="font-size: 1.2rem; color:#8b949e; font-weight: normal;">Países</span>
+                </a>
+                <button class="btn-fechar-sidebar" id="btn-fechar-sidebar">✕</button>
+            </h1>
+
+            <nav class="sidebar-nav">
+                <a href="{% url 'index' %}">Início</a>
+                <a href="{% url 'ranking' %}">Ranking</a>
+                <a href="{% url 'comparar' %}">Comparar</a>
+                <a href="{% url 'graficos' %}">Gráficos</a>
+                <a href="{% url 'historico' %}">Histórico</a>
+                <a href="{% url 'mapa' %}" class="ativo">Mapa</a>
+            </nav>
+
+            <div class="filtros-container">
+                <div class="filtros-header" id="toggle-filtros">
+                    <label style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                        Filtros de Análise
+                    </label>
+                    <svg id="icone-filtro" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+
+                <form id="form-filtros" action="{% url 'mapa' %}" method="GET" class="filtros-mapa">
+
+                    <div class="filtro-grupo">
+                        <label>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                            Fonte de Dados
+                        </label>
+                        <select name="fonte" onchange="document.getElementById('form-filtros').submit()">
+                            <option value="csv" {% if fonte_atual == 'csv' %}selected{% endif %}>Local CSV (Curado)</option>
+                            <option value="api" {% if fonte_atual == 'api' %}selected{% endif %}>World Bank API (Mundo)</option>
+                        </select>
+                    </div>
+
+                    <div class="filtro-grupo">
+                        <label>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                            Colorir Por
+                        </label>
+                        <select name="indicador" onchange="document.getElementById('form-filtros').submit()">
+                            <option value="pib" {% if indicador_atual == 'pib' %}selected{% endif %}>PIB</option>
+                            <option value="idh" {% if indicador_atual == 'idh' %}selected{% endif %}>IDH</option>
+                            <option value="inflacao" {% if indicador_atual == 'inflacao' %}selected{% endif %}>Inflação</option>
+                        </select>
+                    </div>
+
+                    <div class="filtro-grupo">
+                        <label>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            Região
+                        </label>
+                        <select name="regiao" onchange="document.getElementById('form-filtros').submit()">
+                            <option value="">Todas as Regiões</option>
+                            {% for regiao in regioes %}
+                            <option value="{{ regiao }}" {% if regiao_atual == regiao %}selected{% endif %}>{{ regiao }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <hr>
+
+                    <div class="filtro-grupo">
+                        <label>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            Buscar e Focar no País
+                        </label>
+                        <input list="lista-todos-paises" id="busca-pais-mapa" placeholder="Digite o país...">
+                        <datalist id="lista-todos-paises">
+                            <!-- Preenchido via JS -->
+                        </datalist>
+                    </div>
+
+                </form>
+            </div>
+        </aside>
+
+        <!-- Lado Direito (Mapa e Legendas) -->
+        <main class="mapa-wrapper">
+            
+            <!-- Botão para reabrir painel flutuante -->
+            <button class="btn-toggle-flutuante" id="btn-toggle-painel">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Ver Painel
+            </button>
+
+            <!-- Contêiner do Mapa -->
+            <div id="map"></div>
+
+    <!-- Legenda -->
+    <div class="legenda">
+        <div style="margin-bottom: 8px; font-weight: 600; color: #fff;">{{ indicador_atual|upper }}</div>
+        {% if indicador_atual == 'pib' %}
+        <div class="legenda-item">
+            <div class="legenda-dot" style="background:#3fb950;"></div> Alto (> 8.000 bi)
+        </div>
+        <div class="legenda-item">
+            <div class="legenda-dot" style="background:#f0883e;"></div> Médio
+        </div>
+        <div class="legenda-item">
+            <div class="legenda-dot" style="background:#f85149;"></div> Baixo
+        </div>
+        {% elif indicador_atual == 'idh' %}
+        <div class="legenda-item">
+            <div class="legenda-dot" style="background:#388bfd;"></div> ≥ 0.90 (Muito alto)
+        </div>
+        <div class="legenda-item">
+            <div class="legenda-dot" style="background:#a371f7;"></div> ≥ 0.75 (Alto)
+        </div>
+        <div class="legenda-item">
+            <div class="legenda-dot" style="background:#8b949e;"></div>
+            < 0.75 (Médio)</div>
+                {% else %}
+                <div class="legenda-item">
+                    <div class="legenda-dot" style="background:#3fb950;"></div> ≤ 2.5% (Estável)
+                </div>
+                <div class="legenda-item">
+                    <div class="legenda-dot" style="background:#f0883e;"></div> ≤ 5% (Atenção)
+                </div>
+                <div class="legenda-item">
+                    <div class="legenda-dot" style="background:#f85149;"></div> > 5% (Alta)
+                </div>
+                {% endif %}
+                <div class="legenda-item">
+                    <div class="legenda-dot" style="background:#30363d;"></div> Sem dados / Fora do filtro
+                </div>
+        </div>
+
+        <!-- Painel Flutuante Direito -->
+        <div class="painel-flutuante" id="painel">
+            <button class="btn-fechar" onclick="fecharPainel()">✕</button>
+
+            <div class="abas">
+                <div class="aba ativa" id="aba-sintese-btn" onclick="mudarAba('sintese')" style="font-size:0.8rem;">SÍNTESE</div>
+                <div class="aba" id="aba-ranking-btn" onclick="mudarAba('ranking')" style="font-size:0.8rem;">RANKING</div>
+                <div class="aba" id="aba-comparacao-btn" onclick="mudarAba('comparacao')" style="font-size:0.8rem;">COMPARAÇÃO</div>
+            </div>
+
+            <!-- Aba Síntese -->
+            <div class="conteudo-aba ativa" id="aba-sintese">
+                <div id="mensagem-selecione" style="color:#8b949e; text-align:center; padding: 40px 0;">
+                    Selecione um país no mapa para ver a síntese.
+                </div>
+
+                <div id="dados-pais" style="display: none;">
+                    <div class="sintese-header">
+                        <!-- Fallback flag -->
+                        <img id="pais-bandeira" class="sintese-bandeira" src="" alt="Bandeira"
+                            onerror="this.style.display='none'">
+                        <div>
+                            <h2 class="sintese-titulo" id="pais-nome">Brasil</h2>
+                            <p class="sintese-regiao" id="pais-regiao">América do Sul</p>
+                        </div>
+                    </div>
+
+                    <div class="dado-linha">
+                        <span class="dado-label">PIB</span>
+                        <span class="dado-valor">US$ <span id="pais-pib"></span> bi</span>
+                    </div>
+                    <div class="dado-linha">
+                        <span class="dado-label">Inflação</span>
+                        <span class="dado-valor"><span id="pais-inflacao"></span>%</span>
+                    </div>
+                    <div class="dado-linha">
+                        <span class="dado-label">IDH</span>
+                        <span class="dado-valor" id="pais-idh"></span>
+                    </div>
+                    <div class="dado-linha">
+                        <span class="dado-label">Estabilidade (1-10)</span>
+                        <span class="dado-valor" id="pais-estabilidade"></span>
+                    </div>
+                    <div class="dado-linha" style="border-bottom:none; flex-direction:column; gap:8px;">
+                        <span class="dado-label">Relações Internacionais</span>
+                        <span class="dado-valor" id="pais-relacoes"
+                            style="text-align:left; font-size:0.85rem; font-weight:normal;"></span>
+                    </div>
+
+                    <a id="link-perfil" href="#"
+                        style="display:block; margin-top:20px; background:#21262d; color:#c9d1d9; text-align:center; padding:10px; border-radius:6px; text-decoration:none; font-size:0.9rem; border:1px solid #30363d; transition:0.2s;">
+                        Ver perfil detalhado
+                    </a>
+                </div>
+            </div>
+
+            <!-- Aba Ranking -->
+            <div class="conteudo-aba" id="aba-ranking">
+                <table class="tabela-ranking">
+                    <thead>
+                        <tr>
+                            <th colspan="2">País</th>
+                            <th style="text-align:right;">{{ indicador_atual|upper }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pais in paises_ranking %}
+                        <tr onclick="abrirPainel('{{ pais.nome }}')">
+                            <td class="posicao">{{ forloop.counter }}º</td>
+                            <td>{{ pais.nome }}</td>
+                            <td>
+                                {% if indicador_atual == 'pib' %}
+                                US$ {{ pais.pib }}
+                                {% elif indicador_atual == 'idh' %}
+                                {{ pais.idh }}
+                                {% elif indicador_atual == 'inflacao' %}
+                                {{ pais.inflacao }}%
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Aba Comparação -->
+            <div class="conteudo-aba" id="aba-comparacao">
+                <div id="mensagem-selecione-comp" style="color:#8b949e; text-align:center; padding: 40px 0;">
+                    Selecione um "País Base" no mapa primeiro.
+                </div>
+
+                <div id="dados-comparacao" style="display: none;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                        <div style="text-align: center; flex: 1;">
+                            <img id="comp-bandeira-base" src="" style="width: 40px; height: 26px; border-radius: 3px; object-fit: cover;">
+                            <div style="color: #388bfd; font-weight: bold; font-size: 0.85rem; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; margin-left: auto; margin-right: auto;" id="comp-nome-base">Base</div>
+                        </div>
+                        <div style="color: #8b949e; font-size: 1.2rem; font-weight: bold;">VS</div>
+                        <div style="text-align: center; flex: 1;">
+                            <img id="comp-bandeira-alvo" src="" alt="" style="width: 40px; height: 26px; border-radius: 3px; object-fit: cover; display: none; margin: 0 auto 5px auto;" onerror="this.style.display='none'">
+                            <select id="comp-alvo-select" style="background: #21262d; color: #fff; border: 1px solid #30363d; border-radius: 4px; padding: 4px; width: 100px; font-size: 0.8rem; margin-bottom: 5px; outline: none;"></select>
+                            <div style="color: #0d9488; font-weight: bold; font-size: 0.85rem;" id="comp-nome-alvo">Alvo</div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos de Barra -->
+                    <div class="barra-container">
+                        <div class="barra-labels">
+                            <span>PIB (US$ bi)</span>
+                            <span style="color:#8b949e; font-size:0.75rem;"><span id="val-pib-base" style="color:#2563eb"></span> | <span id="val-pib-alvo" style="color:#0d9488"></span></span>
+                        </div>
+                        <div class="barra-bg">
+                            <div id="bar-pib-base" class="barra-fill-base"></div>
+                            <div id="bar-pib-alvo" class="barra-fill-alvo"></div>
+                        </div>
+                    </div>
+
+                    <div class="barra-container">
+                        <div class="barra-labels">
+                            <span>Inflação (%)</span>
+                            <span style="color:#8b949e; font-size:0.75rem;"><span id="val-inf-base" style="color:#2563eb"></span> | <span id="val-inf-alvo" style="color:#0d9488"></span></span>
+                        </div>
+                        <div class="barra-bg">
+                            <div id="bar-inf-base" class="barra-fill-base"></div>
+                            <div id="bar-inf-alvo" class="barra-fill-alvo"></div>
+                        </div>
+                    </div>
+
+                    <div class="barra-container">
+                        <div class="barra-labels">
+                            <span>IDH</span>
+                            <span style="color:#8b949e; font-size:0.75rem;"><span id="val-idh-base" style="color:#2563eb"></span> | <span id="val-idh-alvo" style="color:#0d9488"></span></span>
+                        </div>
+                        <div class="barra-bg">
+                            <div id="bar-idh-base" class="barra-fill-base"></div>
+                            <div id="bar-idh-alvo" class="barra-fill-alvo"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+        <!-- Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+        <!-- Injeção segura dos dados JSON do Django -->
+        {{ paises_json|json_script:"paises-data" }}
+        {{ cores_paises|json_script:"cores-data" }}
+
+        <script>
+            // Captura de erros globais para debug
+            window.addEventListener("error", function (e) {
+                console.error("Erro JS:", e.message, "na linha", e.lineno);
+            });
+
+            // Parse seguro dos dados injetados pelo Django
+            const paisesString = document.getElementById('paises-data').textContent;
+            const coresString = document.getElementById('cores-data').textContent;
+
+            // O Django enviou como string JSON dentro de outra string JSON (por causa do json.dumps no views.py)
+            // Se o JSON for uma string, faremos parse duplo para garantir que vire Objeto.
+            let paisesDados = JSON.parse(paisesString);
+            if (typeof paisesDados === "string") paisesDados = JSON.parse(paisesDados);
+
+            let coresPaises = JSON.parse(coresString);
+            if (typeof coresPaises === "string") coresPaises = JSON.parse(coresPaises);
+
+            // Mapeamento global de layers para dar zoom
+            const layersPais = {};
+
+            // Inicializa o Mapa
+            const map = L.map('map', {
+                zoomControl: false // Movemos o zoom para não conflitar com a legenda
+            }).setView([20, 0], 3);
+
+            L.control.zoom({ position: 'topleft' }).addTo(map);
+
+            // TileLayer escuro do CartoDB (sem chaves necessárias)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 10
+            }).addTo(map);
+
+            // Carregar o GeoJSON do mundo
+            fetch('{% static "mapa/world.json" %}')
+                .then(response => response.json())
+                .then(data => {
+                    L.geoJSON(data, {
+                        style: function (feature) {
+                            const iso3 = feature.id;
+                            const nome = feature.properties.name;
+                            
+                            let nomeTabela = nome;
+                            if (nome === "United States of America") nomeTabela = "Estados Unidos";
+                            if (nome === "United Kingdom") nomeTabela = "Reino Unido";
+                            if (nome === "Brazil") nomeTabela = "Brasil";
+                            if (nome === "Germany") nomeTabela = "Alemanha";
+                            if (nome === "India") nomeTabela = "Índia";
+                            if (nome === "Japan") nomeTabela = "Japão";
+                            if (nome === "Canada") nomeTabela = "Canadá";
+                            if (nome === "France") nomeTabela = "França";
+                            if (nome === "Australia") nomeTabela = "Austrália";
+
+                            // Try matching by ISO3 first (World Bank API), then by local name (CSV)
+                            const cor = coresPaises[iso3] || coresPaises[nomeTabela] || coresPaises[nome] || "#161b22";
+                            const opacidade = cor !== "#161b22" && cor !== "#30363d" ? 0.8 : 0.2;
+                            const strokeColor = cor !== "#161b22" ? "#8b949e" : "#30363d";
+
+                            return {
+                                fillColor: cor,
+                                weight: 1,
+                                opacity: 1,
+                                color: strokeColor,
+                                fillOpacity: opacidade
+                            };
+                        },
+                        onEachFeature: function (feature, layer) {
+                            const iso3 = feature.id;
+                            const nome = feature.properties.name;
+                            
+                            let nomeTabela = nome;
+                            if (nome === "United States of America") nomeTabela = "Estados Unidos";
+                            if (nome === "United Kingdom") nomeTabela = "Reino Unido";
+                            if (nome === "Brazil") nomeTabela = "Brasil";
+                            if (nome === "Germany") nomeTabela = "Alemanha";
+                            if (nome === "India") nomeTabela = "Índia";
+                            if (nome === "Japan") nomeTabela = "Japão";
+                            if (nome === "Canada") nomeTabela = "Canadá";
+                            if (nome === "France") nomeTabela = "França";
+                            if (nome === "Australia") nomeTabela = "Austrália";
+
+                            // Apenas adiciona evento se o país estiver nos nossos dados
+                            if (coresPaises[iso3] || coresPaises[nomeTabela] || coresPaises[nome]) {
+                                const paisObjeto = paisesDados.find(p => (p.iso3 === iso3 || p.codigo_iso3 === iso3)) 
+                                                   || paisesDados.find(p => p.nome === nomeTabela) 
+                                                   || paisesDados.find(p => p.nome === nome);
+                                
+                                let exibirNome = nomeTabela;
+
+                                if (paisObjeto) {
+                                    // Extract ISO2 for the flag
+                                    let sigla = "br";
+                                    if (paisObjeto.iso2) sigla = paisObjeto.iso2.toLowerCase();
+                                    else if (paisObjeto.codigo_iso2) sigla = paisObjeto.codigo_iso2.toLowerCase();
+                                    else if (iso3) sigla = iso3.substring(0,2).toLowerCase();
+
+                                    exibirNome = paisObjeto.nome || nomeTabela;
+                                    const exibirPIB = paisObjeto.pib !== "N/A" ? `US$ ${paisObjeto.pib} bi` : "N/A";
+                                    const exibirInflacao = paisObjeto.inflacao !== "N/A" ? `${paisObjeto.inflacao}%` : "N/A";
+                                    const exibirIDH = paisObjeto.idh ? paisObjeto.idh : "N/A";
+
+                                    const popupHTML = `
+                                        <div class="popup-conteudo">
+                                            <img src="https://flagcdn.com/w40/${sigla}.png" class="popup-bandeira" alt="Bandeira ${exibirNome}" onerror="this.style.display='none'">
+                                            <h3 class="popup-titulo">${exibirNome}</h3>
+                                            <p class="popup-info"><strong>PIB:</strong> ${exibirPIB}</p>
+                                            <p class="popup-info"><strong>Inflação:</strong> ${exibirInflacao}</p>
+                                            <p class="popup-info"><strong>IDH:</strong> ${exibirIDH}</p>
+                                        </div>
+                                    `;
+                                    layer.bindPopup(popupHTML);
+                                }
+
+                                // Tooltip hover
+
+                                // Armazenar o layer para uso do buscador
+                                layersPais[exibirNome] = layer;
+
+                                // Clique no mapa
+                                layer.on('click', function () {
+                                    abrirPainel(exibirNome);
+                                });
+                            }
+                        }
+                    }).addTo(map);
+
+                    // Abre o painel automaticamente na aba ranking
+                    document.getElementById('painel').classList.add('aberto');
+                    mudarAba('ranking');
+
+                    // Preencher Dropdowns com TODAS as opções renderizadas no mapa (API Global)
+                    const dataList = document.getElementById('lista-todos-paises');
+                    const compSelect = document.getElementById('comp-alvo-select');
+                    let todosPaisesNomes = Object.keys(layersPais).sort();
+                    
+                    dataList.innerHTML = '';
+                    compSelect.innerHTML = '<option value="">Selecione para comparar...</option>';
+
+                    todosPaisesNomes.forEach(n => {
+                        const option = document.createElement('option');
+                        option.value = n;
+                        dataList.appendChild(option);
+
+                        const compOption = document.createElement('option');
+                        compOption.value = n;
+                        compOption.textContent = n;
+                        compSelect.appendChild(compOption);
+                    });
+                }).catch(err => {
+                    console.error("Erro ao baixar world.json:", err);
+                    alert("Não foi possível carregar as fronteiras do mapa.");
+                });
+
+            // Lógica do Buscador
+            document.addEventListener('DOMContentLoaded', () => {
+                const searchInput = document.getElementById('busca-pais-mapa');
+                const compSelect = document.getElementById('comp-alvo-select');
+
+                if (searchInput) {
+                    searchInput.addEventListener('change', function() {
+                        const escolhido = this.value;
+                        if (layersPais[escolhido]) {
+                            const l = layersPais[escolhido];
+                            l.openPopup();
+                            abrirPainel(escolhido);
+                        }
+                    });
+                }
+
+                if (compSelect) {
+                    compSelect.addEventListener('change', atualizarComparacao);
+                }
+            });
+
+            // Lógica do Painel
+            function abrirPainel(nomePais) {
+                const pais = paisesDados.find(p => p.nome === nomePais);
+
+                document.getElementById('mensagem-selecione').style.display = 'none';
+                document.getElementById('dados-pais').style.display = 'block';
+
+                document.getElementById('pais-nome').textContent = nomePais;
+
+                if (pais) {
+                    document.getElementById('pais-regiao').textContent = pais.regiao;
+                    document.getElementById('pais-pib').textContent = pais.pib;
+                    document.getElementById('pais-inflacao').textContent = pais.inflacao;
+                    document.getElementById('pais-idh').textContent = pais.idh;
+                    document.getElementById('pais-estabilidade').textContent = pais.estabilidade;
+                    document.getElementById('pais-relacoes').textContent = pais.relacoes_internacionais;
+                } else {
+                    document.getElementById('pais-regiao').textContent = "Global (API)";
+                    document.getElementById('pais-pib').textContent = "Disponível no Perfil";
+                    document.getElementById('pais-inflacao').textContent = "Disponível no Perfil";
+                    document.getElementById('pais-idh').textContent = "N/A";
+                    document.getElementById('pais-estabilidade').textContent = "N/A";
+                    document.getElementById('pais-relacoes').textContent = "N/A";
+                }
+
+                document.getElementById('link-perfil').href = `{% url 'buscar' %}?q=${nomePais}`;
+
+                // Guarda o base para comparação
+                window.paisBaseAtual = pais;
+                atualizarComparacao();
+
+                // Bandeira (Usando API pública RestCountries)
+                let siglaStr = "";
+                if (pais) {
+                    if (pais.iso2) siglaStr = pais.iso2.toLowerCase();
+                    else if (pais.codigo_iso2) siglaStr = pais.codigo_iso2.toLowerCase();
+                }
+                
+                if (!siglaStr) {
+                    // Tenta achar na camada do mapa
+                    const l = layersPais[nomePais];
+                    if (l && l.feature && l.feature.id) {
+                        siglaStr = l.feature.id.substring(0,2).toLowerCase();
+                    }
+                }
+
+                if (siglaStr) {
+                    document.getElementById('pais-bandeira').style.display = 'block';
+                    document.getElementById('pais-bandeira').src = `https://flagcdn.com/w80/${siglaStr}.png`;
+                } else {
+                    document.getElementById('pais-bandeira').style.display = 'none';
+                }
+
+                mudarAba('sintese');
+                document.getElementById('painel').classList.add('aberto');
+            }
+
+            function fecharPainel() {
+                document.getElementById('painel').classList.remove('aberto');
+            }
+
+            // Toggle Painel Flutuante
+            const btnTogglePainel = document.getElementById('btn-toggle-painel');
+            const painel = document.getElementById('painel');
+            
+            if(btnTogglePainel && painel) {
+                btnTogglePainel.addEventListener('click', () => {
+                    painel.classList.toggle('aberto');
+                });
+            }
+
+            // Toggle Sidebar Esquerda
+            const btnFecharSidebar = document.getElementById('btn-fechar-sidebar');
+            const btnAbrirSidebar = document.getElementById('btn-abrir-sidebar');
+            const sidebarEsquerda = document.getElementById('sidebar-esquerda');
+
+            if(btnFecharSidebar && btnAbrirSidebar && sidebarEsquerda) {
+                btnFecharSidebar.addEventListener('click', () => {
+                    sidebarEsquerda.classList.add('fechada');
+                    btnAbrirSidebar.style.display = 'block';
+                    setTimeout(() => map.invalidateSize(), 300); // Recalcula o mapa
+                });
+
+                btnAbrirSidebar.addEventListener('click', () => {
+                    sidebarEsquerda.classList.remove('fechada');
+                    btnAbrirSidebar.style.display = 'none';
+                    setTimeout(() => map.invalidateSize(), 300); // Recalcula o mapa
+                });
+            }
+            
+            // Collapsible Filtros
+            const toggleFiltros = document.getElementById('toggle-filtros');
+            const formFiltros = document.getElementById('form-filtros');
+            const iconeFiltro = document.getElementById('icone-filtro');
+
+            if(toggleFiltros && formFiltros && iconeFiltro) {
+                iconeFiltro.style.transition = 'transform 0.3s ease';
+                toggleFiltros.addEventListener('click', () => {
+                    formFiltros.classList.toggle('escondido');
+                    if (formFiltros.classList.contains('escondido')) {
+                        iconeFiltro.style.transform = 'rotate(180deg)';
+                    } else {
+                        iconeFiltro.style.transform = 'rotate(0deg)';
+                    }
+                });
+            }
+
+            // Foco Rápido em um País
+            const inputBusca = document.getElementById("busca-pais-mapa");
+            if(inputBusca) {
+                inputBusca.addEventListener("change", function() {
+                    const escolhido = this.value;
+                    if (layersPais[escolhido]) {
+                        const l = layersPais[escolhido];
+                        map.flyToBounds(l.getBounds(), { padding: [50, 50], duration: 1.5 });
+                        l.openPopup();
+                        abrirPainel(escolhido);
+                    }
+                });
+            }
+
+
+            function mudarAba(aba) {
+                document.getElementById('aba-sintese-btn').classList.remove('ativa');
+                document.getElementById('aba-ranking-btn').classList.remove('ativa');
+                document.getElementById('aba-comparacao-btn').classList.remove('ativa');
+                
+                document.getElementById('aba-sintese').classList.remove('ativa');
+                document.getElementById('aba-ranking').classList.remove('ativa');
+                document.getElementById('aba-comparacao').classList.remove('ativa');
+
+                document.getElementById(`aba-${aba}-btn`).classList.add('ativa');
+                document.getElementById(`aba-${aba}`).classList.add('ativa');
+            }
+
+            function safeNum(val) {
+                if (val === "N/A" || !val) return 0;
+                return parseFloat(val);
+            }
+
+            function atualizarComparacao() {
+                const base = window.paisBaseAtual;
+                const compSelect = document.getElementById('comp-alvo-select');
+                if (!base) {
+                    document.getElementById('mensagem-selecione-comp').style.display = 'block';
+                    document.getElementById('dados-comparacao').style.display = 'none';
+                    return;
+                }
+                
+                const alvoNome = compSelect.value;
+                const alvo = paisesDados.find(p => p.nome === alvoNome);
+
+                document.getElementById('mensagem-selecione-comp').style.display = 'none';
+                document.getElementById('dados-comparacao').style.display = 'block';
+
+                document.getElementById('comp-nome-base').textContent = base.nome;
+
+                // Resolve a sigla ISO2 do país: usa iso2 dos dados, senão deriva do ISO3 da camada do mapa.
+                const getSigla = (p, nome) => {
+                    if (p) {
+                        if (p.iso2) return p.iso2.toLowerCase();
+                        if (p.codigo_iso2) return p.codigo_iso2.toLowerCase();
+                        if (p.iso3) return p.iso3.substring(0, 2).toLowerCase();
+                    }
+                    const l = layersPais[nome];
+                    if (l && l.feature && l.feature.id) return l.feature.id.substring(0, 2).toLowerCase();
+                    return "";
+                };
+
+                const setBandeira = (id, sigla) => {
+                    const img = document.getElementById(id);
+                    if (sigla) {
+                        img.src = `https://flagcdn.com/w40/${sigla}.png`;
+                        img.style.display = '';
+                    } else {
+                        img.style.display = 'none';
+                    }
+                };
+
+                setBandeira('comp-bandeira-base', getSigla(base, base.nome));
+
+                if (alvo) {
+                    document.getElementById('comp-nome-alvo').textContent = alvo.nome;
+                    setBandeira('comp-bandeira-alvo', getSigla(alvo, alvo.nome));
+                    
+                    const setBar = (idBase, idAlvo, idTextBase, idTextAlvo, vBase, vAlvo, invert) => {
+                        document.getElementById(idTextBase).textContent = vBase;
+                        document.getElementById(idTextAlvo).textContent = vAlvo;
+                        
+                        const nBase = safeNum(vBase);
+                        const nAlvo = safeNum(vAlvo);
+                        const total = nBase + nAlvo;
+                        let percBase = 50, percAlvo = 50;
+
+                        if (total > 0) {
+                            percBase = (nBase / total) * 100;
+                            percAlvo = (nAlvo / total) * 100;
+                        } else {
+                            percBase = 0;
+                            percAlvo = 0;
+                        }
+                        
+                        document.getElementById(idBase).style.width = percBase + "%";
+                        document.getElementById(idAlvo).style.width = percAlvo + "%";
+                    };
+
+                    setBar('bar-pib-base', 'bar-pib-alvo', 'val-pib-base', 'val-pib-alvo', base.pib, alvo.pib, false);
+                    setBar('bar-inf-base', 'bar-inf-alvo', 'val-inf-base', 'val-inf-alvo', base.inflacao, alvo.inflacao, true);
+                    setBar('bar-idh-base', 'bar-idh-alvo', 'val-idh-base', 'val-idh-alvo', base.idh || "N/A", alvo.idh || "N/A", false);
+                } else {
+                    // Nenhum alvo selecionado ainda: esconde a bandeira e zera o rótulo do alvo.
+                    document.getElementById('comp-nome-alvo').textContent = 'Alvo';
+                    setBandeira('comp-bandeira-alvo', '');
+                }
+            }
+        </script>
+
+        <style>
+            /* Customizando o Tooltip e o Popup do Leaflet para o tema Dark */
+            .leaflet-tooltip.custom-tooltip {
+                background-color: #21262d;
+                border: 1px solid #30363d;
+                color: #c9d1d9;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+                font-family: 'Inter', sans-serif;
+                font-weight: 600;
+            }
+
+            .leaflet-popup-content-wrapper {
+                background-color: #161b22;
+                color: #c9d1d9;
+                border: 1px solid #30363d;
+                border-radius: 8px;
+                font-family: 'Inter', sans-serif;
+            }
+
+            .leaflet-popup-tip {
+                background-color: #161b22;
+            }
+
+            .popup-conteudo {
+                text-align: center;
+                min-width: 140px;
+            }
+
+            .popup-bandeira {
+                border-radius: 4px;
+                margin-bottom: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            }
+
+            .popup-titulo {
+                margin: 0 0 8px 0;
+                color: #ffffff;
+                font-size: 1.1rem;
+            }
+
+            .popup-info {
+                margin: 4px 0;
+                font-size: 0.9rem;
+                color: #8b949e;
+            }
+
+            .popup-info strong {
+                color: #c9d1d9;
+            }
+
+            .leaflet-tooltip.custom-tooltip::before {
+                border-top-color: #30363d;
+            }
+        </style>
+
+        <script>
+            // Bloquear IDH no Modo API
+            document.addEventListener('DOMContentLoaded', function() {
+                const fonteSelect = document.querySelector('select[name="fonte"]');
+                const indSelect = document.querySelector('select[name="indicador"]');
+                
+                function toggleIDH() {
+                    const idhOption = indSelect.querySelector('option[value="idh"]');
+                    if (!idhOption) return;
+                    if (fonteSelect.value === 'api') {
+                        if (indSelect.value === 'idh') {
+                            indSelect.value = 'pib';
+                        }
+                        idhOption.disabled = true;
+                        idhOption.text = 'IDH (Apenas Local)';
+                    } else {
+                        idhOption.disabled = false;
+                        idhOption.text = 'IDH';
+                    }
+                }
+                
+                fonteSelect.addEventListener('change', toggleIDH);
+                toggleIDH(); // executa on load
+            });
+        </script>
+    </body>
+</html>

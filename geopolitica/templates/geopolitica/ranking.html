@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AGPy — Ranking econômico e geopolítico dos países analisados.">
+    <title>AGPy - Ranking</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+</head>
+<body>
+
+<header>
+    <h1><a href="/" style="text-decoration: none; color: inherit;">AGPy</a></h1>
+    <nav>
+        <a href="/">Início</a>
+        <a href="/ranking/" class="active">Ranking</a>
+        <a href="/comparar/">Comparar</a>
+        <a href="/graficos/">Graficos</a>
+        <a href="/historico/">Histórico</a>
+        <a href="/mapa/">Mapa</a>
+        <a href="/classificacao/">Classificação</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0; text-align: center;">Ranking Econômico Mundial</h2>
+        
+        <form id="form-filtros" action="{% url 'ranking' %}" method="GET" style="display: flex; gap: 10px; align-items: center;">
+            <select name="fonte" onchange="document.getElementById('form-filtros').submit()" style="background:#161b22; border: 1px solid #388bfd; border-radius:6px; color:#e6edf3; padding: 8px 12px; font-weight:600; font-size: 0.9rem; cursor:pointer; outline: none;">
+                <option value="csv" {% if fonte_atual == 'csv' %}selected{% endif %}>Top 10 Local (CSV)</option>
+                <option value="api" {% if fonte_atual == 'api' %}selected{% endif %}>Top 50 Global (API)</option>
+            </select>
+            <select name="indicador" onchange="document.getElementById('form-filtros').submit()" style="background:#161b22; border: 1px solid #30363d; border-radius:6px; color:#c9d1d9; padding: 8px 12px; font-weight:500; font-size: 0.9rem; cursor:pointer; outline: none;">
+                <option value="pib" {% if indicador_atual == 'pib' %}selected{% endif %}>Ordenar por PIB</option>
+                <option value="inflacao" {% if indicador_atual == 'inflacao' %}selected{% endif %}>Ordenar por Inflação</option>
+                <option value="idh" {% if indicador_atual == 'idh' %}selected{% endif %}>Ordenar por IDH</option>
+            </select>
+        </form>
+
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'exportar_excel' %}?fonte={{ fonte_atual }}&indicador={{ indicador_atual }}" style="background: linear-gradient(135deg, #3fb950, #2ea043); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">Exportar Excel</a>
+            <a href="{% url 'exportar_pdf' %}?fonte={{ fonte_atual }}&indicador={{ indicador_atual }}" style="background: linear-gradient(135deg, #f85149, #da3633); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">Exportar PDF</a>
+        </div>
+    </div>
+
+    <table class="ranking-table">
+        <tr>
+            <th>#</th>
+            <th>País</th>
+            <th>Região</th>
+            <th>{{ indicador_label }}</th>
+        </tr>
+        {% for pais in paises %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ pais.nome }}</td>
+            <td>{{ pais.regiao|default:"—" }}</td>
+            <td>{{ pais.valor_indicador }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br><br>
+
+    <h2>Indicadores Geopolíticos</h2>
+
+    <img src="{% static 'graficos/grafico_pib.png' %}" alt="Gráfico de PIB por País">
+    <img src="{% static 'graficos/grafico_idh.png' %}" alt="Gráfico de IDH por País">
+    <img src="{% static 'graficos/grafico_inflacao.png' %}" alt="Gráfico de Inflação por País">
+    <img src="{% static 'graficos/grafico_estabilidade.png' %}" alt="Gráfico de Estabilidade por País">
+
+</div>
+
+        <script>
+            // Bloquear IDH no Modo API
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('form-filtros');
+                if(!form) return;
+                const fonteSelect = form.querySelector('select[name="fonte"]');
+                const indSelect = form.querySelector('select[name="indicador"]');
+                
+                function toggleIDH() {
+                    const idhOption = indSelect.querySelector('option[value="idh"]');
+                    if (!idhOption) return;
+                    if (fonteSelect.value === 'api') {
+                        if (indSelect.value === 'idh') {
+                            indSelect.value = 'pib';
+                        }
+                        idhOption.disabled = true;
+                        idhOption.text = 'IDH (Apenas Local)';
+                    } else {
+                        idhOption.disabled = false;
+                        idhOption.text = 'Ordenar por IDH';
+                    }
+                }
+                
+                fonteSelect.addEventListener('change', toggleIDH);
+                toggleIDH();
+            });
+        </script>
+
+<footer>
+    <p><strong>AGPy</strong> — Sistema de Análise Geopolítica de Países</p>
+    <p class="footer-sources">Dados: <a href="https://data.worldbank.org" target="_blank">Banco Mundial</a> · <a href="https://restcountries.com" target="_blank">RestCountries</a> · Python · Django · Pandas · Scikit-learn</p>
+</footer>
+
+    </body>
+</html>

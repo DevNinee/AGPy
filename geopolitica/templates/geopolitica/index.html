@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AGPy — Sistema de análise geopolítica com dados em tempo real do Banco Mundial.">
+    <title>AGPy - Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+</head>
+<body>
+
+<header>
+    <h1><a href="/" style="text-decoration: none; color: inherit;">AGPy</a></h1>
+    <nav>
+        <a href="/" class="active">Início</a>
+        <a href="/ranking/">Ranking</a>
+        <a href="/comparar/">Comparar</a>
+        <a href="/graficos/">Graficos</a>
+        <a href="/historico/">Histórico</a>
+        <a href="/mapa/">Mapa</a>
+        <a href="/classificacao/">Classificação</a>
+    </nav>
+</header>
+
+<section class="hero" style="text-align: center; padding: 40px 20px;">
+    <h2>Sistema de Análise Geopolítica Global</h2>
+    <p>Integração em tempo real de indicadores econômicos e relatórios estratégicos para Inteligência Política e Relações Internacionais.</p>
+
+    <!-- Barra de Busca Central -->
+    <form action="/buscar/" method="GET" style="
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        gap: 0;
+        margin-top: 28px;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+    ">
+        <input
+            type="text"
+            name="q"
+            placeholder="Buscar país... ex: Brasil, China, Alemanha"
+            autocomplete="off"
+            id="search-input"
+            style="
+                flex: 1;
+                box-sizing: border-box;
+                background: #1c2128;
+                color: #e6edf3;
+                border: 1px solid #30363d;
+                border-right: none;
+                border-radius: 10px 0 0 10px;
+                padding: 13px 18px;
+                font-family: Inter, sans-serif;
+                font-size: 0.95rem;
+                outline: none;
+                transition: border-color 0.25s;
+            "
+            onfocus="this.style.borderColor='#388bfd'"
+            onblur="this.style.borderColor='#30363d'"
+        >
+        <button
+            type="submit"
+            style="
+                box-sizing: border-box;
+                background: #388bfd;
+                color: #fff;
+                border: 1px solid #388bfd;
+                border-radius: 0 10px 10px 0;
+                padding: 0 20px;
+                font-weight: 600;
+                font-size: 0.95rem;
+                cursor: pointer;
+                transition: background 0.2s;
+            "
+            onmouseover="this.style.background='#1f6feb'"
+            onmouseout="this.style.background='#388bfd'"
+        >
+            Buscar
+        </button>
+    </form>
+
+    <div style="margin-top: 16px; font-size: 0.85rem; color: #8b949e;">
+        Buscas Rápidas:
+        <a href="/buscar/?q=Brasil" class="tag-sugestao">Brasil</a>
+        <a href="/buscar/?q=Estados Unidos" class="tag-sugestao">EUA</a>
+        <a href="/buscar/?q=China" class="tag-sugestao">China</a>
+    </div>
+</section>
+
+<section class="cards" style="max-width: 900px; margin: 0 auto 60px;">
+
+    <a href="{% url 'classificacao' %}" class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#388bfd';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border)';">
+        <h3>Países Monitorados</h3>
+        <p>{{ total_paises }}</p>
+    </a>
+
+    <a href="{% url 'ranking' %}" class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#388bfd';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border)';">
+        <h3>Blocos Internacionais</h3>
+        <p>{{ total_blocos }}</p>
+    </a>
+
+    <a href="{% url 'historico' %}" class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#388bfd';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border)';">
+        <h3>Inflação BR (Ao Vivo)</h3>
+        <p>{{ inflacao_br }}% <span style="font-size:0.75rem; color:var(--text-secondary); display:block;">World Bank {{ ano_br }}</span></p>
+    </a>
+
+    <a href="{% url 'classificacao' %}" class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#f85149';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border)';">
+        <h3>Arsenais Nucleares</h3>
+        <p>{{ nucleares }}</p>
+    </a>
+
+    <a href="{% url 'mapa' %}" class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s; background: linear-gradient(180deg, rgba(56,139,253,0.05) 0%, transparent 100%);" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#388bfd';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border)';">
+        <h3 style="color: #58a6ff;">Cobertura Global (API)</h3>
+        <p>+210</p>
+        <span style="font-size:0.75rem; color:var(--text-secondary); display:block; margin-top: 4px;">World Bank & RestCountries</span>
+    </a>
+
+</section>
+
+<div class="container" style="max-width: 1000px; display: grid; gap: 48px; padding-bottom: 60px;">
+
+    <!-- Sobre o Projeto -->
+    <div style="background: rgba(28, 33, 40, 0.5); border: 1px solid var(--border); padding: 32px; border-radius: 12px;">
+        <h2 style="color: var(--text-primary); margin-bottom: 16px; border-bottom: none; font-size: 1.5rem;">Sobre o Projeto AGPy</h2>
+        <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-secondary);">
+            O AGPy é uma plataforma para <strong>Coleta, Integração, Análise e Visualização</strong> de dados geopolíticos e econômicos. O objetivo é facilitar o estudo das Relações Internacionais cruzando informações de diversas fontes em um só lugar.
+        </p>
+    </div>
+
+    <!-- Diferenciais -->
+    <div>
+        <h2 style="margin-bottom: 24px; font-size: 1.3rem; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 10px;">Diferenciais</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+            <div style="background: rgba(56, 139, 253, 0.05); border: 1px solid rgba(56, 139, 253, 0.3); padding: 24px; border-radius: 10px;">
+                <h3 style="color: #58a6ff; font-size: 1.1rem; margin-bottom: 12px;">API Global (+210 Países)</h3>
+                <p style="font-size: 0.95rem; line-height: 1.5; color: var(--text-secondary);">Dados ao vivo de PIB, Inflação, Gasto Militar e Gini direto do Banco Mundial e RestCountries, cobrindo o mundo todo.</p>
+            </div>
+            <div style="background: rgba(163, 113, 247, 0.05); border: 1px solid rgba(163, 113, 247, 0.3); padding: 24px; border-radius: 10px;">
+                <h3 style="color: #d2a8ff; font-size: 1.1rem; margin-bottom: 12px;">Base Local Especializada</h3>
+                <p style="font-size: 0.95rem; line-height: 1.5; color: var(--text-secondary);">Banco de dados próprio focado nas 10 maiores potências, detalhando alianças, IDH e Índice de Democracia.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Funcionalidades -->
+    <div>
+        <h2 style="margin-bottom: 24px; font-size: 1.3rem; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 10px;">Funcionalidades</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px;">
+                <h3 style="color: var(--text-primary); margin-bottom: 8px; font-size: 1rem;">Gráficos e Rankings</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4;">Classificação visual (Top 15 Mundo ou Base Local) para os indicadores.</p>
+            </div>
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px;">
+                <h3 style="color: var(--text-primary); margin-bottom: 8px; font-size: 1rem;">Geografia Interativa</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4;">Mapas dinâmicos para entender a distribuição global de poder e economia.</p>
+            </div>
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px;">
+                <h3 style="color: var(--text-primary); margin-bottom: 8px; font-size: 1rem;">Comparador de Países</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4;">Coloque duas nações lado a lado e compare seus perfis instantaneamente.</p>
+            </div>
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px;">
+                <h3 style="color: var(--text-primary); margin-bottom: 8px; font-size: 1rem;">Exportação Rápida</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4;">Gere relatórios em PDF ou planilhas Excel com os dados pesquisados.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p><strong>AGPy</strong> — Sistema de Análise Geopolítica de Países</p>
+    <p class="footer-sources">Dados: <a href="https://data.worldbank.org" target="_blank">Banco Mundial</a> · <a href="https://restcountries.com" target="_blank">RestCountries</a> · Python · Django · Pandas · Scikit-learn</p>
+</footer>
+
+</body>
+</html>

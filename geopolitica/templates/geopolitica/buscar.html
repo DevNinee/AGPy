@@ -1,0 +1,209 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AGPy — Busca e perfil completo de países.">
+    <title>AGPy - Resultado: {{ query }}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+</head>
+<body>
+
+<header>
+    <h1><a href="/" style="text-decoration: none; color: inherit;">AGPy</a></h1>
+    <nav>
+        <a href="/">Início</a>
+        <a href="/ranking/">Ranking</a>
+        <a href="/comparar/">Comparar</a>
+        <a href="/graficos/">Graficos</a>
+        <a href="/historico/">Histórico</a>
+        <a href="/mapa/">Mapa</a>
+        <a href="/classificacao/">Classificação</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <!-- Barra de pesquisa também nesta página -->
+    <form action="/buscar/" method="GET" style="display:flex; gap:0; max-width:520px; margin-bottom:32px;">
+        <input
+            type="text"
+            name="q"
+            value="{{ query }}"
+            placeholder="Buscar outro país..."
+            autocomplete="off"
+            style="flex:1; background:#1c2128; color:#e6edf3; border:1px solid #30363d; border-right:none; border-radius:10px 0 0 10px; padding:12px 16px; font-family:Inter,sans-serif; font-size:0.95rem; outline:none;"
+        >
+        <button type="submit" style="background:linear-gradient(135deg,#388bfd,#a371f7); color:white; border:none; border-radius:0 10px 10px 0; padding:12px 20px; font-family:Inter,sans-serif; font-weight:600; cursor:pointer;">
+            Buscar
+        </button>
+    </form>
+
+    {% if nao_encontrado %}
+    <div style="background: var(--bg-card); border: 1px solid var(--accent-red); border-radius: var(--radius); padding: 24px; color: var(--text-secondary); margin-bottom: 32px;">
+        <p style="font-size: 1.1rem; color: var(--text-primary);">Nenhum resultado para "<strong>{{ query }}</strong>".</p>
+        <p style="margin-top: 8px;">Tente buscar por um dos países suportados abaixo.</p>
+    </div>
+    {% endif %}
+
+    {% if resultado %}
+    <!-- Cabeçalho do Perfil -->
+    <div class="perfil-header">
+        <!-- Bandeira Dinâmica usando ISO2 retornado pela View -->
+        <img src="https://flagcdn.com/w80/{{ resultado.iso2|lower }}.png" alt="Bandeira">
+        <div>
+            <h2>{{ resultado.nome }}</h2>
+            <span style="color: var(--text-secondary); font-size: 0.95rem;">Região: {{ resultado.regiao }}</span>
+        </div>
+    </div>
+
+    <!-- Ações rápidas (agora em cima para mais visibilidade) -->
+    <div class="perfil-acoes" style="margin-bottom: 32px;">
+        <a href="/mapa/" class="btn-acao primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>
+            Ver no mapa
+        </a>
+        <a href="/historico/?pais={{ resultado.nome }}" class="btn-acao">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            Histórico de inflação
+        </a>
+        <a href="/comparar/" class="btn-acao">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            Comparar com outro país
+        </a>
+    </div>
+
+    <!-- Indicadores -->
+    <h3 style="margin-bottom: 16px; font-size: 1.1rem; color: var(--text-secondary);">Indicadores Principais</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+
+        <div class="card" style="border-top: 3px solid #3fb950; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">PIB</h3>
+            <p style="font-size: 1.4rem;">{% if "API" in resultado.pib|stringformat:"s" %}{{ resultado.pib }}{% elif resultado.pib == "N/A" %}N/A{% else %}US$ {{ resultado.pib }} bi{% endif %}</p>
+        </div>
+
+        <div class="card" style="border-top: 3px solid #f0883e; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Inflação</h3>
+            <p style="font-size: 1.4rem;">{% if "API" in resultado.inflacao|stringformat:"s" %}{{ resultado.inflacao }}{% elif resultado.inflacao == "N/A" %}N/A{% else %}{{ resultado.inflacao }}%{% endif %}</p>
+        </div>
+        
+        {% if resultado.pib_per_capita %}
+        <div class="card" style="border-top: 3px solid #58a6ff; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">PIB per Capita</h3>
+            <p style="font-size: 1.4rem;">{% if "API" in resultado.pib_per_capita|stringformat:"s" %}US$ {{ resultado.pib_per_capita }}{% elif resultado.pib_per_capita == "N/A" %}N/A{% else %}US$ {{ resultado.pib_per_capita }}{% endif %}</p>
+        </div>
+        {% endif %}
+
+        <div class="card" style="border-top: 3px solid #388bfd; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">IDH</h3>
+            <p style="font-size: 1.4rem;">{{ resultado.idh }}</p>
+        </div>
+
+        <div class="card" style="border-top: 3px solid #a371f7; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Estabilidade Política</h3>
+            <p style="font-size: 1.4rem;">{{ resultado.estabilidade }}{% if "N/A" not in resultado.estabilidade|stringformat:"s" %}<span style="font-size: 0.8rem;">/10</span>{% endif %}</p>
+        </div>
+        
+        {% if resultado.gastos_militares %}
+        <div class="card" style="border-top: 3px solid #f85149; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Gastos Militares</h3>
+            <p style="font-size: 1.4rem;">{% if "API" in resultado.gastos_militares|stringformat:"s" %}{{ resultado.gastos_militares }}% PIB{% elif resultado.gastos_militares == "N/A" %}N/A{% else %}{{ resultado.gastos_militares }}% PIB{% endif %}</p>
+        </div>
+        {% endif %}
+        
+        {% if resultado.gini %}
+        <div class="card" style="border-top: 3px solid #d29922; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Índice de Gini</h3>
+            <p style="font-size: 1.4rem;">{{ resultado.gini }}</p>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <h3 style="margin-bottom: 16px; font-size: 1.1rem; color: var(--text-secondary);">Análise de Relações Internacionais</h3>
+    <div class="card" style="text-align: left; max-width: 100%; width: 100%;">
+        <p style="font-size: 0.95rem; line-height: 1.6; font-weight: normal; color: var(--text-primary);">{{ resultado.relacoes_internacionais }}</p>
+    </div>
+
+    {% if perfil %}
+    <h3 style="margin-top: 32px; margin-bottom: 16px; font-size: 1.1rem; color: var(--text-secondary);">Perfil Geopolítico</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+
+        <div class="card" style="border-top: 3px solid #a371f7; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Classificação</h3>
+            <p style="font-size: 1.2rem;">{{ perfil.classificacao }}</p>
+        </div>
+
+        <div class="card" style="border-top: 3px solid {% if perfil.nuclear %}#f85149{% else %}#3fb950{% endif %}; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Arsenal Nuclear</h3>
+            <p style="font-size: 1.2rem;">{% if perfil.nuclear %}Sim{% else %}Não{% endif %}</p>
+        </div>
+
+        <div class="card" style="border-top: 3px solid #388bfd; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Conselho de Segurança</h3>
+            <p style="font-size: 1.2rem;">{{ perfil.conselho }}</p>
+        </div>
+
+        {% if perfil.gastos_mil %}
+        <div class="card" style="border-top: 3px solid #f0883e; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Gastos Militares</h3>
+            <p style="font-size: 1.2rem;">{{ perfil.gastos_mil }}% PIB</p>
+        </div>
+        {% endif %}
+
+        {% if perfil.democracia %}
+        <div class="card" style="border-top: 3px solid #3fb950; text-align: left;">
+            <h3 style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Democracia (EIU)</h3>
+            <p style="font-size: 1.2rem;">{{ perfil.democracia }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if perfil.blocos %}
+    <h3 style="margin-bottom: 12px; font-size: 1.1rem; color: var(--text-secondary);">Blocos e Alianças</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px;">
+        {% for bloco in perfil.blocos %}
+        <span class="tag-sugestao">{{ bloco }}</span>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if perfil.disputas %}
+    <h3 style="margin-bottom: 12px; font-size: 1.1rem; color: var(--text-secondary);">Disputas Territoriais</h3>
+    <div class="card" style="text-align: left; max-width: 100%; width: 100%;">
+        <p style="font-size: 0.95rem; line-height: 1.6; font-weight: normal; color: var(--text-primary);">{{ perfil.disputas }}</p>
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+    {% elif not query %}
+    <!-- EMPTY STATE -->
+    <div style="text-align: center; padding: 60px 20px;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px; opacity: 0.5;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <h2 style="font-size: 1.5rem; margin-bottom: 12px;">Explorar Dados Geopolíticos</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 32px; max-width: 400px; margin-left: auto; margin-right: auto;">Busque por um país para visualizar seu perfil completo, indicadores econômicos e contexto internacional.</p>
+        
+        <h3 style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">Buscas Rápidas</h3>
+        <div style="display: flex; justify-content: center; flex-wrap: wrap; max-width: 600px; margin: 0 auto;">
+            <a href="?q=Brasil" class="tag-sugestao">Brasil</a>
+            <a href="?q=Estados Unidos" class="tag-sugestao">Estados Unidos</a>
+            <a href="?q=China" class="tag-sugestao">China</a>
+            <a href="?q=Alemanha" class="tag-sugestao">Alemanha</a>
+            <a href="?q=Japão" class="tag-sugestao">Japão</a>
+            <a href="?q=Índia" class="tag-sugestao">Índia</a>
+            <a href="?q=Reino Unido" class="tag-sugestao">Reino Unido</a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<footer>
+    <p><strong>AGPy</strong> — Sistema de Análise Geopolítica de Países</p>
+    <p class="footer-sources">Dados: <a href="https://data.worldbank.org" target="_blank">Banco Mundial</a> · <a href="https://restcountries.com" target="_blank">RestCountries</a> · Python · Django · Pandas · Scikit-learn</p>
+</footer>
+
+</body>
+</html>

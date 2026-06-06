@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_9e3fe5dde30f5437e92b39acd49e21e5 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_9e3fe5dde30f5437e92b39acd49e21e5" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_9e3fe5dde30f5437e92b39acd49e21e5 = L.map(
+                "map_9e3fe5dde30f5437e92b39acd49e21e5",
+                {
+                    center: [20.0, 0.0],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 2,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_f19c6f275898dff2d3fbce1edf0e64d2 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_f19c6f275898dff2d3fbce1edf0e64d2.addTo(map_9e3fe5dde30f5437e92b39acd49e21e5);
+        
+    
+            var feature_group_9af194ebbb2885e5ca7a4e56b9cb7217 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var circle_marker_e835fda1be05fbc08c2ae33218bcd48c = L.circleMarker(
+                [-14.235, -51.9253],
+                {"bubblingMouseEvents": true, "color": "#f85149", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#f85149", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af194ebbb2885e5ca7a4e56b9cb7217);
+        
+    
+        var popup_5fceda9ca5896bb1eda665e620964b7e = L.popup({
+  "maxWidth": 260,
+});
+
+        
+            
+                var i_frame_ebb744b7ec1da6d8a4e8a7fcb111b47f = $(`<iframe src="data:text/html;charset=utf-8;base64,CiAgICAKICAgICAgICA8ZGl2IHN0eWxlPSIKICAgICAgICAgICAgZm9udC1mYW1pbHk6IEludGVyLCBBcmlhbCwgc2Fucy1zZXJpZjsKICAgICAgICAgICAgYmFja2dyb3VuZDogIzFjMjEyODsKICAgICAgICAgICAgYm9yZGVyOiAxcHggc29saWQgIzMwMzYzZDsKICAgICAgICAgICAgYm9yZGVyLXRvcDogM3B4IHNvbGlkICNmODUxNDk7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7CiAgICAgICAgICAgIHBhZGRpbmc6IDE2cHg7CiAgICAgICAgICAgIHdpZHRoOiAyNDBweDsKICAgICAgICAgICAgY29sb3I6ICNlNmVkZjM7CiAgICAgICAgIj4KICAgICAgICAgICAgPGgzIHN0eWxlPSJtYXJnaW46MCAwIDEycHggMDsgZm9udC1zaXplOjE1cHg7IGNvbG9yOiNmODUxNDk7Ij5CcmFzaWw8L2gzPgogICAgICAgICAgICA8dGFibGUgc3R5bGU9IndpZHRoOjEwMCU7IGJvcmRlci1jb2xsYXBzZTpjb2xsYXBzZTsgZm9udC1zaXplOjEycHg7Ij4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5SZWdpw6NvPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij5BbcOpcmljYSBkbyBTdWw8L3RkPjwvdHI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+UElCPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij5VUyQgMTkwMCBiaTwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5JbmZsYcOnw6NvPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij41LjAlPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPklESDwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+MC43NjwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5Fc3RhYmlsaWRhZGU8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPjYuMDwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5SZWxhw6fDtWVzPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7IGZvbnQtc2l6ZToxMXB4OyI+RzIwIGUgQlJJQ1M8L3RkPjwvdHI+CiAgICAgICAgICAgIDwvdGFibGU+CiAgICAgICAgPC9kaXY+CiAgICAgICAg" width="260" style="border:none !important;" height="230"></iframe>`)[0];
+                popup_5fceda9ca5896bb1eda665e620964b7e.setContent(i_frame_ebb744b7ec1da6d8a4e8a7fcb111b47f);
+            
+        
+
+        circle_marker_6abe7fec89244164deff74dcddf1d878.bindPopup(popup_5fceda9ca5896bb1eda665e620964b7e)
+        ;
+
+        
+    
+    
+            circle_marker_e835fda1be05fbc08c2ae33218bcd48c.bindTooltip(
+                `<div>
+                     Brasil — PIB: US$ 1900 bi
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_39f3988ae5892df9d082f5917b81faa2 = L.circleMarker(
+                [37.0902, -95.7129],
+                {"bubblingMouseEvents": true, "color": "#3fb950", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3fb950", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af194ebbb2885e5ca7a4e56b9cb7217);
+        
+    
+        var popup_40b1c19ac1ed1edb863360c315deecb4 = L.popup({
+  "maxWidth": 260,
+});
+
+        
+            
+                var i_frame_e3a3c0e51cf9da962c83c74201b69702 = $(`<iframe src="data:text/html;charset=utf-8;base64,CiAgICAKICAgICAgICA8ZGl2IHN0eWxlPSIKICAgICAgICAgICAgZm9udC1mYW1pbHk6IEludGVyLCBBcmlhbCwgc2Fucy1zZXJpZjsKICAgICAgICAgICAgYmFja2dyb3VuZDogIzFjMjEyODsKICAgICAgICAgICAgYm9yZGVyOiAxcHggc29saWQgIzMwMzYzZDsKICAgICAgICAgICAgYm9yZGVyLXRvcDogM3B4IHNvbGlkICMzZmI5NTA7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7CiAgICAgICAgICAgIHBhZGRpbmc6IDE2cHg7CiAgICAgICAgICAgIHdpZHRoOiAyNDBweDsKICAgICAgICAgICAgY29sb3I6ICNlNmVkZjM7CiAgICAgICAgIj4KICAgICAgICAgICAgPGgzIHN0eWxlPSJtYXJnaW46MCAwIDEycHggMDsgZm9udC1zaXplOjE1cHg7IGNvbG9yOiMzZmI5NTA7Ij5Fc3RhZG9zIFVuaWRvczwvaDM+CiAgICAgICAgICAgIDx0YWJsZSBzdHlsZT0id2lkdGg6MTAwJTsgYm9yZGVyLWNvbGxhcHNlOmNvbGxhcHNlOyBmb250LXNpemU6MTJweDsiPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlJlZ2nDo288L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPkFtw6lyaWNhIGRvIE5vcnRlPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlBJQjwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+VVMkIDI1MDAwIGJpPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkluZmxhw6fDo288L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPjMuMCU8L3RkPjwvdHI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+SURIPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij4wLjkyPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkVzdGFiaWxpZGFkZTwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+OC41PC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlJlbGHDp8O1ZXM8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsgZm9udC1zaXplOjExcHg7Ij5HNyBlIE9UQU48L3RkPjwvdHI+CiAgICAgICAgICAgIDwvdGFibGU+CiAgICAgICAgPC9kaXY+CiAgICAgICAg" width="260" style="border:none !important;" height="230"></iframe>`)[0];
+                popup_40b1c19ac1ed1edb863360c315deecb4.setContent(i_frame_e3a3c0e51cf9da962c83c74201b69702);
+            
+        
+
+        circle_marker_06f4d83fbd554b7136e6540f974d7937.bindPopup(popup_40b1c19ac1ed1edb863360c315deecb4)
+        ;
+
+        
+    
+    
+            circle_marker_39f3988ae5892df9d082f5917b81faa2.bindTooltip(
+                `<div>
+                     Estados Unidos — PIB: US$ 25000 bi
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_380a3632d4da44d383bf546c7926834a = L.circleMarker(
+                [35.8617, 104.1954],
+                {"bubblingMouseEvents": true, "color": "#3fb950", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3fb950", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af194ebbb2885e5ca7a4e56b9cb7217);
+        
+    
+        var popup_8fca7b93631c9c66c315ac34221891df = L.popup({
+  "maxWidth": 260,
+});
+
+        
+            
+                var i_frame_76e4a7223ebdf45ae4a67f96834d76a3 = $(`<iframe src="data:text/html;charset=utf-8;base64,CiAgICAKICAgICAgICA8ZGl2IHN0eWxlPSIKICAgICAgICAgICAgZm9udC1mYW1pbHk6IEludGVyLCBBcmlhbCwgc2Fucy1zZXJpZjsKICAgICAgICAgICAgYmFja2dyb3VuZDogIzFjMjEyODsKICAgICAgICAgICAgYm9yZGVyOiAxcHggc29saWQgIzMwMzYzZDsKICAgICAgICAgICAgYm9yZGVyLXRvcDogM3B4IHNvbGlkICMzZmI5NTA7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7CiAgICAgICAgICAgIHBhZGRpbmc6IDE2cHg7CiAgICAgICAgICAgIHdpZHRoOiAyNDBweDsKICAgICAgICAgICAgY29sb3I6ICNlNmVkZjM7CiAgICAgICAgIj4KICAgICAgICAgICAgPGgzIHN0eWxlPSJtYXJnaW46MCAwIDEycHggMDsgZm9udC1zaXplOjE1cHg7IGNvbG9yOiMzZmI5NTA7Ij5DaGluYTwvaDM+CiAgICAgICAgICAgIDx0YWJsZSBzdHlsZT0id2lkdGg6MTAwJTsgYm9yZGVyLWNvbGxhcHNlOmNvbGxhcHNlOyBmb250LXNpemU6MTJweDsiPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlJlZ2nDo288L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPsOBc2lhPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlBJQjwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+VVMkIDE4MDAwIGJpPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkluZmxhw6fDo288L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPjIuNSU8L3RkPjwvdHI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+SURIPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij4wLjc4PC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkVzdGFiaWxpZGFkZTwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+Ny4wPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlJlbGHDp8O1ZXM8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsgZm9udC1zaXplOjExcHg7Ij5HMjAgZSBCUklDUzwvdGQ+PC90cj4KICAgICAgICAgICAgPC90YWJsZT4KICAgICAgICA8L2Rpdj4KICAgICAgICA=" width="260" style="border:none !important;" height="230"></iframe>`)[0];
+                popup_8fca7b93631c9c66c315ac34221891df.setContent(i_frame_76e4a7223ebdf45ae4a67f96834d76a3);
+            
+        
+
+        circle_marker_4c2f709afd03f73742be042fec8380f5.bindPopup(popup_8fca7b93631c9c66c315ac34221891df)
+        ;
+
+        
+    
+    
+            circle_marker_380a3632d4da44d383bf546c7926834a.bindTooltip(
+                `<div>
+                     China — PIB: US$ 18000 bi
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_601f1808f69ef6a6014eb9bdcf6d5769 = L.circleMarker(
+                [51.1657, 10.4515],
+                {"bubblingMouseEvents": true, "color": "#f85149", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#f85149", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af194ebbb2885e5ca7a4e56b9cb7217);
+        
+    
+        var popup_b3171d0ea8bc354aa04af15eb8b08067 = L.popup({
+  "maxWidth": 260,
+});
+
+        
+            
+                var i_frame_d72e8d1af281ee00a4c7cd72f9fd8614 = $(`<iframe src="data:text/html;charset=utf-8;base64,CiAgICAKICAgICAgICA8ZGl2IHN0eWxlPSIKICAgICAgICAgICAgZm9udC1mYW1pbHk6IEludGVyLCBBcmlhbCwgc2Fucy1zZXJpZjsKICAgICAgICAgICAgYmFja2dyb3VuZDogIzFjMjEyODsKICAgICAgICAgICAgYm9yZGVyOiAxcHggc29saWQgIzMwMzYzZDsKICAgICAgICAgICAgYm9yZGVyLXRvcDogM3B4IHNvbGlkICNmODUxNDk7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7CiAgICAgICAgICAgIHBhZGRpbmc6IDE2cHg7CiAgICAgICAgICAgIHdpZHRoOiAyNDBweDsKICAgICAgICAgICAgY29sb3I6ICNlNmVkZjM7CiAgICAgICAgIj4KICAgICAgICAgICAgPGgzIHN0eWxlPSJtYXJnaW46MCAwIDEycHggMDsgZm9udC1zaXplOjE1cHg7IGNvbG9yOiNmODUxNDk7Ij5BbGVtYW5oYTwvaDM+CiAgICAgICAgICAgIDx0YWJsZSBzdHlsZT0id2lkdGg6MTAwJTsgYm9yZGVyLWNvbGxhcHNlOmNvbGxhcHNlOyBmb250LXNpemU6MTJweDsiPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlJlZ2nDo288L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPkV1cm9wYTwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5QSUI8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPlVTJCA0MjAwIGJpPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkluZmxhw6fDo288L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPjIuMCU8L3RkPjwvdHI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+SURIPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij4wLjk0PC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkVzdGFiaWxpZGFkZTwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+OS4wPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlJlbGHDp8O1ZXM8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsgZm9udC1zaXplOjExcHg7Ij5HNyBlIFVuacOjbyBFdXJvcGVpYTwvdGQ+PC90cj4KICAgICAgICAgICAgPC90YWJsZT4KICAgICAgICA8L2Rpdj4KICAgICAgICA=" width="260" style="border:none !important;" height="230"></iframe>`)[0];
+                popup_b3171d0ea8bc354aa04af15eb8b08067.setContent(i_frame_d72e8d1af281ee00a4c7cd72f9fd8614);
+            
+        
+
+        circle_marker_ff4607f57c148e6c37abd4167fb48273.bindPopup(popup_b3171d0ea8bc354aa04af15eb8b08067)
+        ;
+
+        
+    
+    
+            circle_marker_601f1808f69ef6a6014eb9bdcf6d5769.bindTooltip(
+                `<div>
+                     Alemanha — PIB: US$ 4200 bi
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_2da5938b729e53aebd24aed8d0db4ad5 = L.circleMarker(
+                [20.5937, 78.9629],
+                {"bubblingMouseEvents": true, "color": "#f85149", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#f85149", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af194ebbb2885e5ca7a4e56b9cb7217);
+        
+    
+        var popup_da11fde43e1a2bc5dfea3c80e2001dc7 = L.popup({
+  "maxWidth": 260,
+});
+
+        
+            
+                var i_frame_cba35c83e365ecf318c14487ef8ae7a1 = $(`<iframe src="data:text/html;charset=utf-8;base64,CiAgICAKICAgICAgICA8ZGl2IHN0eWxlPSIKICAgICAgICAgICAgZm9udC1mYW1pbHk6IEludGVyLCBBcmlhbCwgc2Fucy1zZXJpZjsKICAgICAgICAgICAgYmFja2dyb3VuZDogIzFjMjEyODsKICAgICAgICAgICAgYm9yZGVyOiAxcHggc29saWQgIzMwMzYzZDsKICAgICAgICAgICAgYm9yZGVyLXRvcDogM3B4IHNvbGlkICNmODUxNDk7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7CiAgICAgICAgICAgIHBhZGRpbmc6IDE2cHg7CiAgICAgICAgICAgIHdpZHRoOiAyNDBweDsKICAgICAgICAgICAgY29sb3I6ICNlNmVkZjM7CiAgICAgICAgIj4KICAgICAgICAgICAgPGgzIHN0eWxlPSJtYXJnaW46MCAwIDEycHggMDsgZm9udC1zaXplOjE1cHg7IGNvbG9yOiNmODUxNDk7Ij7DjW5kaWE8L2gzPgogICAgICAgICAgICA8dGFibGUgc3R5bGU9IndpZHRoOjEwMCU7IGJvcmRlci1jb2xsYXBzZTpjb2xsYXBzZTsgZm9udC1zaXplOjEycHg7Ij4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5SZWdpw6NvPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij7DgXNpYTwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5QSUI8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPlVTJCAzNTAwIGJpPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkluZmxhw6fDo288L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPjYuMCU8L3RkPjwvdHI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+SURIPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij4wLjY0PC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkVzdGFiaWxpZGFkZTwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+NS41PC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlJlbGHDp8O1ZXM8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsgZm9udC1zaXplOjExcHg7Ij5HMjAgZSBCUklDUzwvdGQ+PC90cj4KICAgICAgICAgICAgPC90YWJsZT4KICAgICAgICA8L2Rpdj4KICAgICAgICA=" width="260" style="border:none !important;" height="230"></iframe>`)[0];
+                popup_da11fde43e1a2bc5dfea3c80e2001dc7.setContent(i_frame_cba35c83e365ecf318c14487ef8ae7a1);
+            
+        
+
+        circle_marker_c9c2e95c090fa35c9061d2035023a2c4.bindPopup(popup_da11fde43e1a2bc5dfea3c80e2001dc7)
+        ;
+
+        
+    
+    
+            circle_marker_2da5938b729e53aebd24aed8d0db4ad5.bindTooltip(
+                `<div>
+                     Índia — PIB: US$ 3500 bi
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_c4ba47e49f102396fc6389ea46a9067a = L.circleMarker(
+                [36.2048, 138.2529],
+                {"bubblingMouseEvents": true, "color": "#f85149", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#f85149", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af194ebbb2885e5ca7a4e56b9cb7217);
+        
+    
+        var popup_a61a3c58bae085d96c4f9d515dc330db = L.popup({
+  "maxWidth": 260,
+});
+
+        
+            
+                var i_frame_34a8a5ef9a311d0f5bd4d057ba1bce18 = $(`<iframe src="data:text/html;charset=utf-8;base64,CiAgICAKICAgICAgICA8ZGl2IHN0eWxlPSIKICAgICAgICAgICAgZm9udC1mYW1pbHk6IEludGVyLCBBcmlhbCwgc2Fucy1zZXJpZjsKICAgICAgICAgICAgYmFja2dyb3VuZDogIzFjMjEyODsKICAgICAgICAgICAgYm9yZGVyOiAxcHggc29saWQgIzMwMzYzZDsKICAgICAgICAgICAgYm9yZGVyLXRvcDogM3B4IHNvbGlkICNmODUxNDk7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7CiAgICAgICAgICAgIHBhZGRpbmc6IDE2cHg7CiAgICAgICAgICAgIHdpZHRoOiAyNDBweDsKICAgICAgICAgICAgY29sb3I6ICNlNmVkZjM7CiAgICAgICAgIj4KICAgICAgICAgICAgPGgzIHN0eWxlPSJtYXJnaW46MCAwIDEycHggMDsgZm9udC1zaXplOjE1cHg7IGNvbG9yOiNmODUxNDk7Ij5KYXDDo288L2gzPgogICAgICAgICAgICA8dGFibGUgc3R5bGU9IndpZHRoOjEwMCU7IGJvcmRlci1jb2xsYXBzZTpjb2xsYXBzZTsgZm9udC1zaXplOjEycHg7Ij4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5SZWdpw6NvPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij7DgXNpYTwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5QSUI8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPlVTJCA1MDAwIGJpPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkluZmxhw6fDo288L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPjEuNSU8L3RkPjwvdHI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+SURIPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij4wLjkxPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkVzdGFiaWxpZGFkZTwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+OC44PC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlJlbGHDp8O1ZXM8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsgZm9udC1zaXplOjExcHg7Ij5HNzwvdGQ+PC90cj4KICAgICAgICAgICAgPC90YWJsZT4KICAgICAgICA8L2Rpdj4KICAgICAgICA=" width="260" style="border:none !important;" height="230"></iframe>`)[0];
+                popup_a61a3c58bae085d96c4f9d515dc330db.setContent(i_frame_34a8a5ef9a311d0f5bd4d057ba1bce18);
+            
+        
+
+        circle_marker_d5c725701376f59d1ba2c9a32d5c866d.bindPopup(popup_a61a3c58bae085d96c4f9d515dc330db)
+        ;
+
+        
+    
+    
+            circle_marker_c4ba47e49f102396fc6389ea46a9067a.bindTooltip(
+                `<div>
+                     Japão — PIB: US$ 5000 bi
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_c70fefe13e944ee5751d9b164cf804ac = L.circleMarker(
+                [56.1304, -106.3468],
+                {"bubblingMouseEvents": true, "color": "#f85149", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#f85149", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af194ebbb2885e5ca7a4e56b9cb7217);
+        
+    
+        var popup_e732068053ad83dfc440874da8f43a3a = L.popup({
+  "maxWidth": 260,
+});
+
+        
+            
+                var i_frame_219e9ec0e38ca6a3cdbf8a06d10d4490 = $(`<iframe src="data:text/html;charset=utf-8;base64,CiAgICAKICAgICAgICA8ZGl2IHN0eWxlPSIKICAgICAgICAgICAgZm9udC1mYW1pbHk6IEludGVyLCBBcmlhbCwgc2Fucy1zZXJpZjsKICAgICAgICAgICAgYmFja2dyb3VuZDogIzFjMjEyODsKICAgICAgICAgICAgYm9yZGVyOiAxcHggc29saWQgIzMwMzYzZDsKICAgICAgICAgICAgYm9yZGVyLXRvcDogM3B4IHNvbGlkICNmODUxNDk7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7CiAgICAgICAgICAgIHBhZGRpbmc6IDE2cHg7CiAgICAgICAgICAgIHdpZHRoOiAyNDBweDsKICAgICAgICAgICAgY29sb3I6ICNlNmVkZjM7CiAgICAgICAgIj4KICAgICAgICAgICAgPGgzIHN0eWxlPSJtYXJnaW46MCAwIDEycHggMDsgZm9udC1zaXplOjE1cHg7IGNvbG9yOiNmODUxNDk7Ij5DYW5hZMOhPC9oMz4KICAgICAgICAgICAgPHRhYmxlIHN0eWxlPSJ3aWR0aDoxMDAlOyBib3JkZXItY29sbGFwc2U6Y29sbGFwc2U7IGZvbnQtc2l6ZToxMnB4OyI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+UmVnacOjbzwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+QW3DqXJpY2EgZG8gTm9ydGU8L3RkPjwvdHI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+UElCPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij5VUyQgMjEwMCBiaTwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5JbmZsYcOnw6NvPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij4yLjIlPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPklESDwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+MC45MzwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5Fc3RhYmlsaWRhZGU8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPjguNzwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5SZWxhw6fDtWVzPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7IGZvbnQtc2l6ZToxMXB4OyI+RzcgZSBPVEFOPC90ZD48L3RyPgogICAgICAgICAgICA8L3RhYmxlPgogICAgICAgIDwvZGl2PgogICAgICAgIA==" width="260" style="border:none !important;" height="230"></iframe>`)[0];
+                popup_e732068053ad83dfc440874da8f43a3a.setContent(i_frame_219e9ec0e38ca6a3cdbf8a06d10d4490);
+            
+        
+
+        circle_marker_d39deadde4243730cd115a0c344146d3.bindPopup(popup_e732068053ad83dfc440874da8f43a3a)
+        ;
+
+        
+    
+    
+            circle_marker_c70fefe13e944ee5751d9b164cf804ac.bindTooltip(
+                `<div>
+                     Canadá — PIB: US$ 2100 bi
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_5375ae9ea394c6da016883364dde3f01 = L.circleMarker(
+                [46.2276, 2.2137],
+                {"bubblingMouseEvents": true, "color": "#f85149", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#f85149", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af194ebbb2885e5ca7a4e56b9cb7217);
+        
+    
+        var popup_c83bb83e2f29619018acd58f9f3b2ae8 = L.popup({
+  "maxWidth": 260,
+});
+
+        
+            
+                var i_frame_c3af43b351361669924eb77f09e0213f = $(`<iframe src="data:text/html;charset=utf-8;base64,CiAgICAKICAgICAgICA8ZGl2IHN0eWxlPSIKICAgICAgICAgICAgZm9udC1mYW1pbHk6IEludGVyLCBBcmlhbCwgc2Fucy1zZXJpZjsKICAgICAgICAgICAgYmFja2dyb3VuZDogIzFjMjEyODsKICAgICAgICAgICAgYm9yZGVyOiAxcHggc29saWQgIzMwMzYzZDsKICAgICAgICAgICAgYm9yZGVyLXRvcDogM3B4IHNvbGlkICNmODUxNDk7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7CiAgICAgICAgICAgIHBhZGRpbmc6IDE2cHg7CiAgICAgICAgICAgIHdpZHRoOiAyNDBweDsKICAgICAgICAgICAgY29sb3I6ICNlNmVkZjM7CiAgICAgICAgIj4KICAgICAgICAgICAgPGgzIHN0eWxlPSJtYXJnaW46MCAwIDEycHggMDsgZm9udC1zaXplOjE1cHg7IGNvbG9yOiNmODUxNDk7Ij5GcmFuw6dhPC9oMz4KICAgICAgICAgICAgPHRhYmxlIHN0eWxlPSJ3aWR0aDoxMDAlOyBib3JkZXItY29sbGFwc2U6Y29sbGFwc2U7IGZvbnQtc2l6ZToxMnB4OyI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+UmVnacOjbzwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+RXVyb3BhPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlBJQjwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+VVMkIDMwMDAgYmk8L3RkPjwvdHI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+SW5mbGHDp8OjbzwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+Mi4xJTwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5JREg8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPjAuOTwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5Fc3RhYmlsaWRhZGU8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPjguNjwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5SZWxhw6fDtWVzPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7IGZvbnQtc2l6ZToxMXB4OyI+RzcgZSBVbmnDo28gRXVyb3BlaWE8L3RkPjwvdHI+CiAgICAgICAgICAgIDwvdGFibGU+CiAgICAgICAgPC9kaXY+CiAgICAgICAg" width="260" style="border:none !important;" height="230"></iframe>`)[0];
+                popup_c83bb83e2f29619018acd58f9f3b2ae8.setContent(i_frame_c3af43b351361669924eb77f09e0213f);
+            
+        
+
+        circle_marker_f00e1e34eaa9f4ed72b041b6d704f67d.bindPopup(popup_c83bb83e2f29619018acd58f9f3b2ae8)
+        ;
+
+        
+    
+    
+            circle_marker_5375ae9ea394c6da016883364dde3f01.bindTooltip(
+                `<div>
+                     França — PIB: US$ 3000 bi
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_f7134e6872fc0b47766dad75df5e5e22 = L.circleMarker(
+                [55.3781, -3.436],
+                {"bubblingMouseEvents": true, "color": "#f85149", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#f85149", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af194ebbb2885e5ca7a4e56b9cb7217);
+        
+    
+        var popup_b96f905fda966c92bdf116678dea777a = L.popup({
+  "maxWidth": 260,
+});
+
+        
+            
+                var i_frame_eb06876f66b80e369adf0c10425fcfba = $(`<iframe src="data:text/html;charset=utf-8;base64,CiAgICAKICAgICAgICA8ZGl2IHN0eWxlPSIKICAgICAgICAgICAgZm9udC1mYW1pbHk6IEludGVyLCBBcmlhbCwgc2Fucy1zZXJpZjsKICAgICAgICAgICAgYmFja2dyb3VuZDogIzFjMjEyODsKICAgICAgICAgICAgYm9yZGVyOiAxcHggc29saWQgIzMwMzYzZDsKICAgICAgICAgICAgYm9yZGVyLXRvcDogM3B4IHNvbGlkICNmODUxNDk7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7CiAgICAgICAgICAgIHBhZGRpbmc6IDE2cHg7CiAgICAgICAgICAgIHdpZHRoOiAyNDBweDsKICAgICAgICAgICAgY29sb3I6ICNlNmVkZjM7CiAgICAgICAgIj4KICAgICAgICAgICAgPGgzIHN0eWxlPSJtYXJnaW46MCAwIDEycHggMDsgZm9udC1zaXplOjE1cHg7IGNvbG9yOiNmODUxNDk7Ij5SZWlubyBVbmlkbzwvaDM+CiAgICAgICAgICAgIDx0YWJsZSBzdHlsZT0id2lkdGg6MTAwJTsgYm9yZGVyLWNvbGxhcHNlOmNvbGxhcHNlOyBmb250LXNpemU6MTJweDsiPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlJlZ2nDo288L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPkV1cm9wYTwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5QSUI8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPlVTJCAzMTAwIGJpPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkluZmxhw6fDo288L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPjIuMyU8L3RkPjwvdHI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+SURIPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij4wLjkxPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkVzdGFiaWxpZGFkZTwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+OC40PC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlJlbGHDp8O1ZXM8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsgZm9udC1zaXplOjExcHg7Ij5HNyBlIE9UQU48L3RkPjwvdHI+CiAgICAgICAgICAgIDwvdGFibGU+CiAgICAgICAgPC9kaXY+CiAgICAgICAg" width="260" style="border:none !important;" height="230"></iframe>`)[0];
+                popup_b96f905fda966c92bdf116678dea777a.setContent(i_frame_eb06876f66b80e369adf0c10425fcfba);
+            
+        
+
+        circle_marker_6dcf3f0602c9d718f6ed469877925c43.bindPopup(popup_b96f905fda966c92bdf116678dea777a)
+        ;
+
+        
+    
+    
+            circle_marker_f7134e6872fc0b47766dad75df5e5e22.bindTooltip(
+                `<div>
+                     Reino Unido — PIB: US$ 3100 bi
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_72c2ee1e9fec9d45407c1b945bebc0bc = L.circleMarker(
+                [-25.2744, 133.7751],
+                {"bubblingMouseEvents": true, "color": "#f85149", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#f85149", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af194ebbb2885e5ca7a4e56b9cb7217);
+        
+    
+        var popup_6fc28298a849b04a84972c71a4258422 = L.popup({
+  "maxWidth": 260,
+});
+
+        
+            
+                var i_frame_b6e841ee11b58ce888dd98e8b5f29272 = $(`<iframe src="data:text/html;charset=utf-8;base64,CiAgICAKICAgICAgICA8ZGl2IHN0eWxlPSIKICAgICAgICAgICAgZm9udC1mYW1pbHk6IEludGVyLCBBcmlhbCwgc2Fucy1zZXJpZjsKICAgICAgICAgICAgYmFja2dyb3VuZDogIzFjMjEyODsKICAgICAgICAgICAgYm9yZGVyOiAxcHggc29saWQgIzMwMzYzZDsKICAgICAgICAgICAgYm9yZGVyLXRvcDogM3B4IHNvbGlkICNmODUxNDk7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7CiAgICAgICAgICAgIHBhZGRpbmc6IDE2cHg7CiAgICAgICAgICAgIHdpZHRoOiAyNDBweDsKICAgICAgICAgICAgY29sb3I6ICNlNmVkZjM7CiAgICAgICAgIj4KICAgICAgICAgICAgPGgzIHN0eWxlPSJtYXJnaW46MCAwIDEycHggMDsgZm9udC1zaXplOjE1cHg7IGNvbG9yOiNmODUxNDk7Ij5BdXN0csOhbGlhPC9oMz4KICAgICAgICAgICAgPHRhYmxlIHN0eWxlPSJ3aWR0aDoxMDAlOyBib3JkZXItY29sbGFwc2U6Y29sbGFwc2U7IGZvbnQtc2l6ZToxMnB4OyI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+UmVnacOjbzwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+T2NlYW5pYTwvdGQ+PC90cj4KICAgICAgICAgICAgICAgIDx0cj48dGQgc3R5bGU9ImNvbG9yOiM4Yjk0OWU7IHBhZGRpbmc6M3B4IDA7Ij5QSUI8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPlVTJCAxNzAwIGJpPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkluZmxhw6fDo288L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsiPjIuNCU8L3RkPjwvdHI+CiAgICAgICAgICAgICAgICA8dHI+PHRkIHN0eWxlPSJjb2xvcjojOGI5NDllOyBwYWRkaW5nOjNweCAwOyI+SURIPC90ZD48dGQgc3R5bGU9InRleHQtYWxpZ246cmlnaHQ7Ij4wLjkyPC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPkVzdGFiaWxpZGFkZTwvdGQ+PHRkIHN0eWxlPSJ0ZXh0LWFsaWduOnJpZ2h0OyI+OC45PC90ZD48L3RyPgogICAgICAgICAgICAgICAgPHRyPjx0ZCBzdHlsZT0iY29sb3I6IzhiOTQ5ZTsgcGFkZGluZzozcHggMDsiPlJlbGHDp8O1ZXM8L3RkPjx0ZCBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDsgZm9udC1zaXplOjExcHg7Ij5HMjA8L3RkPjwvdHI+CiAgICAgICAgICAgIDwvdGFibGU+CiAgICAgICAgPC9kaXY+CiAgICAgICAg" width="260" style="border:none !important;" height="230"></iframe>`)[0];
+                popup_6fc28298a849b04a84972c71a4258422.setContent(i_frame_b6e841ee11b58ce888dd98e8b5f29272);
+            
+        
+
+        circle_marker_da31d89fe9745eb77492a16a89cffc8b.bindPopup(popup_6fc28298a849b04a84972c71a4258422)
+        ;
+
+        
+    
+    
+            circle_marker_72c2ee1e9fec9d45407c1b945bebc0bc.bindTooltip(
+                `<div>
+                     Austrália — PIB: US$ 1700 bi
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_9af194ebbb2885e5ca7a4e56b9cb7217.addTo(map_9e3fe5dde30f5437e92b39acd49e21e5);
+        
+    
+            var feature_group_9af2625cec6e9bb6d1637b97c6a13c70 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var circle_marker_5e14e1b85496924171ddc3cbfec85360 = L.circleMarker(
+                [-14.235, -51.9253],
+                {"bubblingMouseEvents": true, "color": "#a371f7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#a371f7", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af2625cec6e9bb6d1637b97c6a13c70);
+        
+    
+            circle_marker_5e14e1b85496924171ddc3cbfec85360.bindTooltip(
+                `<div>
+                     Brasil — IDH: 0.76
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_fee1c62ca829aeb5a2b6e9ab9b98d5f6 = L.circleMarker(
+                [37.0902, -95.7129],
+                {"bubblingMouseEvents": true, "color": "#388bfd", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#388bfd", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af2625cec6e9bb6d1637b97c6a13c70);
+        
+    
+            circle_marker_fee1c62ca829aeb5a2b6e9ab9b98d5f6.bindTooltip(
+                `<div>
+                     Estados Unidos — IDH: 0.92
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_e5af56d1f4da39cfd7a3f833b0ce0a43 = L.circleMarker(
+                [35.8617, 104.1954],
+                {"bubblingMouseEvents": true, "color": "#a371f7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#a371f7", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af2625cec6e9bb6d1637b97c6a13c70);
+        
+    
+            circle_marker_e5af56d1f4da39cfd7a3f833b0ce0a43.bindTooltip(
+                `<div>
+                     China — IDH: 0.78
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_057d0a2d96ff4fcb941a84a32b063f34 = L.circleMarker(
+                [51.1657, 10.4515],
+                {"bubblingMouseEvents": true, "color": "#388bfd", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#388bfd", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af2625cec6e9bb6d1637b97c6a13c70);
+        
+    
+            circle_marker_057d0a2d96ff4fcb941a84a32b063f34.bindTooltip(
+                `<div>
+                     Alemanha — IDH: 0.94
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_f266a569e85306ea743e7219e1801ebc = L.circleMarker(
+                [20.5937, 78.9629],
+                {"bubblingMouseEvents": true, "color": "#8b949e", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#8b949e", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af2625cec6e9bb6d1637b97c6a13c70);
+        
+    
+            circle_marker_f266a569e85306ea743e7219e1801ebc.bindTooltip(
+                `<div>
+                     Índia — IDH: 0.64
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_0b4a5f2b5ef372a3647942734d793d2e = L.circleMarker(
+                [36.2048, 138.2529],
+                {"bubblingMouseEvents": true, "color": "#388bfd", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#388bfd", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af2625cec6e9bb6d1637b97c6a13c70);
+        
+    
+            circle_marker_0b4a5f2b5ef372a3647942734d793d2e.bindTooltip(
+                `<div>
+                     Japão — IDH: 0.91
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_e2d7ac683409baad46e9af93cf1d56ff = L.circleMarker(
+                [56.1304, -106.3468],
+                {"bubblingMouseEvents": true, "color": "#388bfd", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#388bfd", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af2625cec6e9bb6d1637b97c6a13c70);
+        
+    
+            circle_marker_e2d7ac683409baad46e9af93cf1d56ff.bindTooltip(
+                `<div>
+                     Canadá — IDH: 0.93
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_14708ad9cad86d85334b9cb05317f939 = L.circleMarker(
+                [46.2276, 2.2137],
+                {"bubblingMouseEvents": true, "color": "#388bfd", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#388bfd", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af2625cec6e9bb6d1637b97c6a13c70);
+        
+    
+            circle_marker_14708ad9cad86d85334b9cb05317f939.bindTooltip(
+                `<div>
+                     França — IDH: 0.9
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_96696f9c90ad3764a99439c2250506b8 = L.circleMarker(
+                [55.3781, -3.436],
+                {"bubblingMouseEvents": true, "color": "#388bfd", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#388bfd", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af2625cec6e9bb6d1637b97c6a13c70);
+        
+    
+            circle_marker_96696f9c90ad3764a99439c2250506b8.bindTooltip(
+                `<div>
+                     Reino Unido — IDH: 0.91
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_250a2d3ab6870a9a7a6c407ce6418734 = L.circleMarker(
+                [-25.2744, 133.7751],
+                {"bubblingMouseEvents": true, "color": "#388bfd", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#388bfd", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_9af2625cec6e9bb6d1637b97c6a13c70);
+        
+    
+            circle_marker_250a2d3ab6870a9a7a6c407ce6418734.bindTooltip(
+                `<div>
+                     Austrália — IDH: 0.92
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var feature_group_136fe6419b7bbe76c208b55df84b36a8 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var circle_marker_6abe7fec89244164deff74dcddf1d878 = L.circleMarker(
+                [-14.235, -51.9253],
+                {"bubblingMouseEvents": true, "color": "#f0883e", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#f0883e", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_136fe6419b7bbe76c208b55df84b36a8);
+        
+    
+            circle_marker_6abe7fec89244164deff74dcddf1d878.bindTooltip(
+                `<div>
+                     Brasil — Inflação: 5.0%
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_06f4d83fbd554b7136e6540f974d7937 = L.circleMarker(
+                [37.0902, -95.7129],
+                {"bubblingMouseEvents": true, "color": "#f0883e", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#f0883e", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_136fe6419b7bbe76c208b55df84b36a8);
+        
+    
+            circle_marker_06f4d83fbd554b7136e6540f974d7937.bindTooltip(
+                `<div>
+                     Estados Unidos — Inflação: 3.0%
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_4c2f709afd03f73742be042fec8380f5 = L.circleMarker(
+                [35.8617, 104.1954],
+                {"bubblingMouseEvents": true, "color": "#3fb950", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3fb950", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_136fe6419b7bbe76c208b55df84b36a8);
+        
+    
+            circle_marker_4c2f709afd03f73742be042fec8380f5.bindTooltip(
+                `<div>
+                     China — Inflação: 2.5%
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_ff4607f57c148e6c37abd4167fb48273 = L.circleMarker(
+                [51.1657, 10.4515],
+                {"bubblingMouseEvents": true, "color": "#3fb950", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3fb950", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_136fe6419b7bbe76c208b55df84b36a8);
+        
+    
+            circle_marker_ff4607f57c148e6c37abd4167fb48273.bindTooltip(
+                `<div>
+                     Alemanha — Inflação: 2.0%
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_c9c2e95c090fa35c9061d2035023a2c4 = L.circleMarker(
+                [20.5937, 78.9629],
+                {"bubblingMouseEvents": true, "color": "#f85149", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#f85149", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_136fe6419b7bbe76c208b55df84b36a8);
+        
+    
+            circle_marker_c9c2e95c090fa35c9061d2035023a2c4.bindTooltip(
+                `<div>
+                     Índia — Inflação: 6.0%
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_d5c725701376f59d1ba2c9a32d5c866d = L.circleMarker(
+                [36.2048, 138.2529],
+                {"bubblingMouseEvents": true, "color": "#3fb950", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3fb950", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_136fe6419b7bbe76c208b55df84b36a8);
+        
+    
+            circle_marker_d5c725701376f59d1ba2c9a32d5c866d.bindTooltip(
+                `<div>
+                     Japão — Inflação: 1.5%
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_d39deadde4243730cd115a0c344146d3 = L.circleMarker(
+                [56.1304, -106.3468],
+                {"bubblingMouseEvents": true, "color": "#3fb950", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3fb950", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_136fe6419b7bbe76c208b55df84b36a8);
+        
+    
+            circle_marker_d39deadde4243730cd115a0c344146d3.bindTooltip(
+                `<div>
+                     Canadá — Inflação: 2.2%
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_f00e1e34eaa9f4ed72b041b6d704f67d = L.circleMarker(
+                [46.2276, 2.2137],
+                {"bubblingMouseEvents": true, "color": "#3fb950", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3fb950", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_136fe6419b7bbe76c208b55df84b36a8);
+        
+    
+            circle_marker_f00e1e34eaa9f4ed72b041b6d704f67d.bindTooltip(
+                `<div>
+                     França — Inflação: 2.1%
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6dcf3f0602c9d718f6ed469877925c43 = L.circleMarker(
+                [55.3781, -3.436],
+                {"bubblingMouseEvents": true, "color": "#3fb950", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3fb950", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_136fe6419b7bbe76c208b55df84b36a8);
+        
+    
+            circle_marker_6dcf3f0602c9d718f6ed469877925c43.bindTooltip(
+                `<div>
+                     Reino Unido — Inflação: 2.3%
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_da31d89fe9745eb77492a16a89cffc8b = L.circleMarker(
+                [-25.2744, 133.7751],
+                {"bubblingMouseEvents": true, "color": "#3fb950", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3fb950", "fillOpacity": 0.85, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(feature_group_136fe6419b7bbe76c208b55df84b36a8);
+        
+    
+            circle_marker_da31d89fe9745eb77492a16a89cffc8b.bindTooltip(
+                `<div>
+                     Austrália — Inflação: 2.4%
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var layer_control_2ae78c593d4e3c02ff7ab2f42ab8c231_layers = {
+                base_layers : {
+                    "cartodbdarkmatter" : tile_layer_f19c6f275898dff2d3fbce1edf0e64d2,
+                },
+                overlays :  {
+                    "Por PIB" : feature_group_9af194ebbb2885e5ca7a4e56b9cb7217,
+                    "Por IDH" : feature_group_9af2625cec6e9bb6d1637b97c6a13c70,
+                    "Por Infla\u00e7\u00e3o" : feature_group_136fe6419b7bbe76c208b55df84b36a8,
+                },
+            };
+            let layer_control_2ae78c593d4e3c02ff7ab2f42ab8c231 = L.control.layers(
+                layer_control_2ae78c593d4e3c02ff7ab2f42ab8c231_layers.base_layers,
+                layer_control_2ae78c593d4e3c02ff7ab2f42ab8c231_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_9e3fe5dde30f5437e92b39acd49e21e5);
+
+        
+</script>
+</html>

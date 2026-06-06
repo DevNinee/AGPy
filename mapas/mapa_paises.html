@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_215f0b8d947cc2dca580a78ecb0dd0a1 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_215f0b8d947cc2dca580a78ecb0dd0a1" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_215f0b8d947cc2dca580a78ecb0dd0a1 = L.map(
+                "map_215f0b8d947cc2dca580a78ecb0dd0a1",
+                {
+                    center: [20.0, 0.0],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 2,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_0c6cc610ca73912ae15e76c75bb84b3c = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_0c6cc610ca73912ae15e76c75bb84b3c.addTo(map_215f0b8d947cc2dca580a78ecb0dd0a1);
+        
+    
+            var marker_ba277e2f00134ca694001502d9225e5f = L.marker(
+                [-14.235, -51.9253],
+                {
+}
+            ).addTo(map_215f0b8d947cc2dca580a78ecb0dd0a1);
+        
+    
+        var popup_c1de10ef7ba2b191a688c6bdee6e9ff7 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_7e0219a4ee5bc495fdb6341866eed78d = $(`<div id="html_7e0219a4ee5bc495fdb6341866eed78d" style="width: 100.0%; height: 100.0%;">             <b>Brasil</b><br>             Região: América do Sul<br>             PIB: 1900<br>             Inflação: 5.0%<br>             IDH: 0.76<br>             Estabilidade: 6.0<br>             Relações internacionais: G20 e BRICS             </div>`)[0];
+                popup_c1de10ef7ba2b191a688c6bdee6e9ff7.setContent(html_7e0219a4ee5bc495fdb6341866eed78d);
+            
+        
+
+        marker_ba277e2f00134ca694001502d9225e5f.bindPopup(popup_c1de10ef7ba2b191a688c6bdee6e9ff7)
+        ;
+
+        
+    
+    
+            marker_ba277e2f00134ca694001502d9225e5f.bindTooltip(
+                `<div>
+                     Brasil
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_2af125234a1f7645b21a970386371c60 = L.marker(
+                [37.0902, -95.7129],
+                {
+}
+            ).addTo(map_215f0b8d947cc2dca580a78ecb0dd0a1);
+        
+    
+        var popup_2c692c47c2dc920f7beeaf3e254f32c6 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_93974698bd1c22a8407aaf23787aeb96 = $(`<div id="html_93974698bd1c22a8407aaf23787aeb96" style="width: 100.0%; height: 100.0%;">             <b>Estados Unidos</b><br>             Região: América do Norte<br>             PIB: 25000<br>             Inflação: 3.0%<br>             IDH: 0.92<br>             Estabilidade: 8.5<br>             Relações internacionais: G7 e OTAN             </div>`)[0];
+                popup_2c692c47c2dc920f7beeaf3e254f32c6.setContent(html_93974698bd1c22a8407aaf23787aeb96);
+            
+        
+
+        marker_2af125234a1f7645b21a970386371c60.bindPopup(popup_2c692c47c2dc920f7beeaf3e254f32c6)
+        ;
+
+        
+    
+    
+            marker_2af125234a1f7645b21a970386371c60.bindTooltip(
+                `<div>
+                     Estados Unidos
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_d49203478311ea57ef49a88c5f943aa8 = L.marker(
+                [35.8617, 104.1954],
+                {
+}
+            ).addTo(map_215f0b8d947cc2dca580a78ecb0dd0a1);
+        
+    
+        var popup_4578380bb71a4a0b0f07cc35d6357855 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_1a8cb096718dd0755cafbe6ec97db306 = $(`<div id="html_1a8cb096718dd0755cafbe6ec97db306" style="width: 100.0%; height: 100.0%;">             <b>China</b><br>             Região: Ásia<br>             PIB: 18000<br>             Inflação: 2.5%<br>             IDH: 0.78<br>             Estabilidade: 7.0<br>             Relações internacionais: G20 e BRICS             </div>`)[0];
+                popup_4578380bb71a4a0b0f07cc35d6357855.setContent(html_1a8cb096718dd0755cafbe6ec97db306);
+            
+        
+
+        marker_d49203478311ea57ef49a88c5f943aa8.bindPopup(popup_4578380bb71a4a0b0f07cc35d6357855)
+        ;
+
+        
+    
+    
+            marker_d49203478311ea57ef49a88c5f943aa8.bindTooltip(
+                `<div>
+                     China
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_eff82e8f9786a5fb6a0024d73bebed95 = L.marker(
+                [51.1657, 10.4515],
+                {
+}
+            ).addTo(map_215f0b8d947cc2dca580a78ecb0dd0a1);
+        
+    
+        var popup_7f7cc5bdf1c0c79b23b40a4ecdafef4c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c10199edaff2cefa0e8e9dfd41cf51e9 = $(`<div id="html_c10199edaff2cefa0e8e9dfd41cf51e9" style="width: 100.0%; height: 100.0%;">             <b>Alemanha</b><br>             Região: Europa<br>             PIB: 4200<br>             Inflação: 2.0%<br>             IDH: 0.94<br>             Estabilidade: 9.0<br>             Relações internacionais: G7 e União Europeia             </div>`)[0];
+                popup_7f7cc5bdf1c0c79b23b40a4ecdafef4c.setContent(html_c10199edaff2cefa0e8e9dfd41cf51e9);
+            
+        
+
+        marker_eff82e8f9786a5fb6a0024d73bebed95.bindPopup(popup_7f7cc5bdf1c0c79b23b40a4ecdafef4c)
+        ;
+
+        
+    
+    
+            marker_eff82e8f9786a5fb6a0024d73bebed95.bindTooltip(
+                `<div>
+                     Alemanha
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_4d3f30dcc8a01ce7f50aec28782ef0b8 = L.marker(
+                [20.5937, 78.9629],
+                {
+}
+            ).addTo(map_215f0b8d947cc2dca580a78ecb0dd0a1);
+        
+    
+        var popup_22bac6037da090bc0e6ac1f28a2a9e1f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_7d24b2d3c2a1782bb3f8dc024a4fe602 = $(`<div id="html_7d24b2d3c2a1782bb3f8dc024a4fe602" style="width: 100.0%; height: 100.0%;">             <b>Índia</b><br>             Região: Ásia<br>             PIB: 3500<br>             Inflação: 6.0%<br>             IDH: 0.64<br>             Estabilidade: 5.5<br>             Relações internacionais: G20 e BRICS             </div>`)[0];
+                popup_22bac6037da090bc0e6ac1f28a2a9e1f.setContent(html_7d24b2d3c2a1782bb3f8dc024a4fe602);
+            
+        
+
+        marker_4d3f30dcc8a01ce7f50aec28782ef0b8.bindPopup(popup_22bac6037da090bc0e6ac1f28a2a9e1f)
+        ;
+
+        
+    
+    
+            marker_4d3f30dcc8a01ce7f50aec28782ef0b8.bindTooltip(
+                `<div>
+                     Índia
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_ad9c429c0bea62d40f2d7cce3693a0de = L.marker(
+                [36.2048, 138.2529],
+                {
+}
+            ).addTo(map_215f0b8d947cc2dca580a78ecb0dd0a1);
+        
+    
+        var popup_78b7c0efb4e100632a827db3f7c2e735 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f5dcd554dc96cef526c8d4de27115ff5 = $(`<div id="html_f5dcd554dc96cef526c8d4de27115ff5" style="width: 100.0%; height: 100.0%;">             <b>Japão</b><br>             Região: Ásia<br>             PIB: 5000<br>             Inflação: 1.5%<br>             IDH: 0.91<br>             Estabilidade: 8.8<br>             Relações internacionais: G7             </div>`)[0];
+                popup_78b7c0efb4e100632a827db3f7c2e735.setContent(html_f5dcd554dc96cef526c8d4de27115ff5);
+            
+        
+
+        marker_ad9c429c0bea62d40f2d7cce3693a0de.bindPopup(popup_78b7c0efb4e100632a827db3f7c2e735)
+        ;
+
+        
+    
+    
+            marker_ad9c429c0bea62d40f2d7cce3693a0de.bindTooltip(
+                `<div>
+                     Japão
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_2fc559163d1c4c79906cfa0fc0e3d319 = L.marker(
+                [56.1304, -106.3468],
+                {
+}
+            ).addTo(map_215f0b8d947cc2dca580a78ecb0dd0a1);
+        
+    
+        var popup_c4465cc3462c8a464763d691fbfc96e0 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_7f710a8aee7f119a08c97f3682a5d566 = $(`<div id="html_7f710a8aee7f119a08c97f3682a5d566" style="width: 100.0%; height: 100.0%;">             <b>Canadá</b><br>             Região: América do Norte<br>             PIB: 2100<br>             Inflação: 2.2%<br>             IDH: 0.93<br>             Estabilidade: 8.7<br>             Relações internacionais: G7 e OTAN             </div>`)[0];
+                popup_c4465cc3462c8a464763d691fbfc96e0.setContent(html_7f710a8aee7f119a08c97f3682a5d566);
+            
+        
+
+        marker_2fc559163d1c4c79906cfa0fc0e3d319.bindPopup(popup_c4465cc3462c8a464763d691fbfc96e0)
+        ;
+
+        
+    
+    
+            marker_2fc559163d1c4c79906cfa0fc0e3d319.bindTooltip(
+                `<div>
+                     Canadá
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_fdf1f48e544c047ab3f62f0af52d5523 = L.marker(
+                [46.2276, 2.2137],
+                {
+}
+            ).addTo(map_215f0b8d947cc2dca580a78ecb0dd0a1);
+        
+    
+        var popup_158aca533d04a73f59054fc4faa6ed1b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0a2afaba8f8587f9f5c07cb2264826ec = $(`<div id="html_0a2afaba8f8587f9f5c07cb2264826ec" style="width: 100.0%; height: 100.0%;">             <b>França</b><br>             Região: Europa<br>             PIB: 3000<br>             Inflação: 2.1%<br>             IDH: 0.9<br>             Estabilidade: 8.6<br>             Relações internacionais: G7 e União Europeia             </div>`)[0];
+                popup_158aca533d04a73f59054fc4faa6ed1b.setContent(html_0a2afaba8f8587f9f5c07cb2264826ec);
+            
+        
+
+        marker_fdf1f48e544c047ab3f62f0af52d5523.bindPopup(popup_158aca533d04a73f59054fc4faa6ed1b)
+        ;
+
+        
+    
+    
+            marker_fdf1f48e544c047ab3f62f0af52d5523.bindTooltip(
+                `<div>
+                     França
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_2a7e037f85bf5d85a9269e1d7232cf7a = L.marker(
+                [55.3781, -3.436],
+                {
+}
+            ).addTo(map_215f0b8d947cc2dca580a78ecb0dd0a1);
+        
+    
+        var popup_092414e88bc54a8ee558fdab7bccaba4 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_11be6f644b0663f6f97d9ff80ea0d43e = $(`<div id="html_11be6f644b0663f6f97d9ff80ea0d43e" style="width: 100.0%; height: 100.0%;">             <b>Reino Unido</b><br>             Região: Europa<br>             PIB: 3100<br>             Inflação: 2.3%<br>             IDH: 0.91<br>             Estabilidade: 8.4<br>             Relações internacionais: G7 e OTAN             </div>`)[0];
+                popup_092414e88bc54a8ee558fdab7bccaba4.setContent(html_11be6f644b0663f6f97d9ff80ea0d43e);
+            
+        
+
+        marker_2a7e037f85bf5d85a9269e1d7232cf7a.bindPopup(popup_092414e88bc54a8ee558fdab7bccaba4)
+        ;
+
+        
+    
+    
+            marker_2a7e037f85bf5d85a9269e1d7232cf7a.bindTooltip(
+                `<div>
+                     Reino Unido
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_1bbaa5d11a77f2389c91aee4806988f1 = L.marker(
+                [-25.2744, 133.7751],
+                {
+}
+            ).addTo(map_215f0b8d947cc2dca580a78ecb0dd0a1);
+        
+    
+        var popup_c955f7be5ad0e7a96d6537df5f467d8c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_cd2538a3dedb572ddb277594536fde34 = $(`<div id="html_cd2538a3dedb572ddb277594536fde34" style="width: 100.0%; height: 100.0%;">             <b>Austrália</b><br>             Região: Oceania<br>             PIB: 1700<br>             Inflação: 2.4%<br>             IDH: 0.92<br>             Estabilidade: 8.9<br>             Relações internacionais: G20             </div>`)[0];
+                popup_c955f7be5ad0e7a96d6537df5f467d8c.setContent(html_cd2538a3dedb572ddb277594536fde34);
+            
+        
+
+        marker_1bbaa5d11a77f2389c91aee4806988f1.bindPopup(popup_c955f7be5ad0e7a96d6537df5f467d8c)
+        ;
+
+        
+    
+    
+            marker_1bbaa5d11a77f2389c91aee4806988f1.bindTooltip(
+                `<div>
+                     Austrália
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+</script>
+</html>

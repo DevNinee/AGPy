@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AGPy — Histórico de inflação por país via API do Banco Mundial.">
+    <title>AGPy - Histórico de Inflação</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<header>
+    <h1><a href="/" style="text-decoration: none; color: inherit;">AGPy</a></h1>
+    <nav>
+        <a href="/">Início</a>
+        <a href="/ranking/">Ranking</a>
+        <a href="/comparar/">Comparar</a>
+        <a href="/graficos/">Graficos</a>
+        <a href="/historico/" class="active">Histórico</a>
+        <a href="/mapa/">Mapa</a>
+        <a href="/classificacao/">Classificação</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <h2 style="text-align: center; margin-bottom: 30px;">Histórico Temporal</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 24px;">Dados em tempo real da API do Banco Mundial. Selecione um país para visualizar a evolução da inflação nos últimos 15 anos.</p>
+
+    <div class="toolbar">
+        <form id="form-historico" onsubmit="event.preventDefault();">
+            <label for="pais-select" style="color: var(--text-secondary); margin-right: 8px;">Selecionar país:</label>
+            <select id="pais-select">
+                {% for p in paises %}
+                <option value="{{ p }}" {% if pais_atual == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+            
+            <label for="indicador-select" style="color: var(--text-secondary); margin: 0 8px 0 16px;">Indicador:</label>
+            <select id="indicador-select">
+                <option value="inflacao">Inflação (%)</option>
+                <option value="pib">PIB (Bilhões US$)</option>
+            </select>
+
+            <button type="button" onclick="carregarDados()" style="background: var(--accent-blue); color: white; border: none; border-radius: 6px; padding: 10px 20px; margin-left: 16px; cursor: pointer; font-weight: 600;">Buscar Dados</button>
+        </form>
+    </div>
+
+    <div id="loading" style="display:none; color: var(--text-secondary); margin-bottom: 16px; font-size: 0.9rem;">
+        Buscando dados da API do Banco Mundial...
+    </div>
+
+    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;">
+        <canvas id="grafico-historico" height="100"></canvas>
+    </div>
+
+    <!-- Painel de Análise ML (Scikit-learn) -->
+    <div id="ml-panel" style="display:none; margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div id="ml-tendencia" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;">
+            <h4 style="margin: 0 0 8px 0; color: var(--text-primary); font-size: 0.95rem;">Análise de Tendência (Scikit-learn)</h4>
+            <div id="tendencia-badge" style="font-size: 1.4rem; margin: 8px 0;"></div>
+            <div id="tendencia-coef" style="color: var(--text-secondary); font-size: 0.85rem;"></div>
+        </div>
+        <div id="ml-previsao" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;">
+            <h4 style="margin: 0 0 8px 0; color: var(--text-primary); font-size: 0.95rem;">Previsão (Regressão Linear)</h4>
+            <div id="previsao-valor" style="font-size: 1.4rem; margin: 8px 0; color: var(--accent-violet);"></div>
+            <div id="previsao-ano" style="color: var(--text-secondary); font-size: 0.85rem;"></div>
+        </div>
+    </div>
+
+    <div id="info-pais" style="margin-top: 16px; color: var(--text-secondary); font-size: 0.85rem;"></div>
+
+</div>
+
+<script>
+let chart = null;
+
+async function carregarDados() {
+    const pais = document.getElementById("pais-select").value;
+    const indicador = document.getElementById("indicador-select").value;
+    document.getElementById("loading").style.display = "block";
+
+    try {
+        const resposta = await fetch(`/historico/dados/?pais=${encodeURIComponent(pais)}&indicador=${indicador}`);
+        const dados = await resposta.json();
+
+        document.getElementById("loading").style.display = "none";
+
+        if (chart) chart.destroy();
+
+        const ctx = document.getElementById("grafico-historico").getContext("2d");
+
+        const labelEixoY = dados.indicador === "pib" ? `PIB — ${dados.pais} (Bi US$)` : `Inflação — ${dados.pais} (%)`;
+            const labelTooltip = dados.indicador === "pib" ? `US$ ` : ``;
+            const sufixoTooltip = dados.indicador === "pib" ? ` bi` : `%`;
+
+            chart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: dados.anos,
+                    datasets: [{
+                        label: labelEixoY,
+                        data: dados.valores,
+                        borderColor: dados.indicador === "pib" ? "#3fb950" : "#388bfd",
+                        backgroundColor: dados.indicador === "pib" ? "rgba(63, 185, 80, 0.12)" : "rgba(56, 139, 253, 0.12)",
+                        borderWidth: 2.5,
+                        pointBackgroundColor: dados.indicador === "pib" ? "#3fb950" : "#388bfd",
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        fill: true,
+                        tension: 0.35,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: "#8b949e", font: { family: "Inter", size: 12 } }
+                        },
+                        tooltip: {
+                            backgroundColor: "#1c2128",
+                            borderColor: "#30363d",
+                            borderWidth: 1,
+                            titleColor: "#e6edf3",
+                            bodyColor: "#8b949e",
+                            callbacks: {
+                                label: ctx => ` ${labelTooltip}${ctx.parsed.y}${sufixoTooltip}`
+                            }
+                        }
+                    },
+                scales: {
+                    x: {
+                        ticks: { color: "#8b949e", font: { family: "Inter", size: 11 } },
+                        grid: { color: "#21262d" }
+                    },
+                    y: {
+                        ticks: {
+                            color: "#8b949e",
+                            font: { family: "Inter", size: 11 },
+                            callback: v => dados.indicador === "pib" ? v : v + "%"
+                        },
+                        grid: { color: "#21262d" }
+                    }
+                }
+            }
+        });
+
+        document.getElementById("info-pais").textContent =
+            `Fonte: Banco Mundial (World Bank API) · Indicador: ${dados.codigo_wb} · ${dados.anos.length} anos de dados`;
+
+        // === Painel ML ===
+        const mlPanel = document.getElementById("ml-panel");
+        if (dados.tendencia && dados.previsao) {
+            mlPanel.style.display = "grid";
+
+            const labels = { crescente: "(Crescente)", decrescente: "(Decrescente)", estável: "(Estável)", indeterminada: "(Indeterminada)" };
+            const cores = { crescente: "#3fb950", decrescente: "#f85149", estável: "#f0883e", indeterminada: "#8b949e" };
+            const tipo = dados.tendencia.tipo;
+
+            document.getElementById("tendencia-badge").innerHTML =
+                `<span style="color:${cores[tipo]}">${tipo.charAt(0).toUpperCase() + tipo.slice(1)} ${labels[tipo]}</span>`;
+            document.getElementById("tendencia-coef").textContent =
+                `Coeficiente: ${dados.tendencia.coeficiente} por ano`;
+
+            const sufixo = dados.indicador === "pib" ? " bi" : "%";
+            document.getElementById("previsao-valor").textContent =
+                `${dados.previsao.valor}${sufixo}`;
+            document.getElementById("previsao-ano").textContent =
+                `Previsão para ${dados.previsao.ano} (regressão linear)`;
+        } else {
+            mlPanel.style.display = "none";
+        }
+
+    } catch (e) {
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("info-pais").textContent = "Erro ao buscar dados. Verifique sua conexão.";
+    }
+}
+
+// Carrega Brasil por padrão ao entrar na página
+window.addEventListener("DOMContentLoaded", carregarDados);
+</script>
+
+<footer>
+    <p><strong>AGPy</strong> — Sistema de Análise Geopolítica de Países</p>
+    <p class="footer-sources">Dados: <a href="https://data.worldbank.org" target="_blank">Banco Mundial</a> · <a href="https://restcountries.com" target="_blank">RestCountries</a> · Python · Django · Pandas · Scikit-learn</p>
+</footer>
+
+</body>
+</html>

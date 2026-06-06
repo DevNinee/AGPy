@@ -1,0 +1,9 @@
+pandas
+matplotlib
+folium
+requests
+django
+fpdf2
+scikit-learn
+openpyxl
+pycountry

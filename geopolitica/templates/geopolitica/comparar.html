@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AGPy — Compare indicadores geopolíticos entre dois países.">
+    <title>AGPy - Comparar Países</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+</head>
+<body>
+
+<header>
+    <h1><a href="/" style="text-decoration: none; color: inherit;">AGPy</a></h1>
+    <nav>
+        <a href="/">Início</a>
+        <a href="/ranking/">Ranking</a>
+        <a href="/comparar/" class="active">Comparar</a>
+        <a href="/graficos/">Graficos</a>
+        <a href="/historico/">Histórico</a>
+        <a href="/mapa/">Mapa</a>
+        <a href="/classificacao/">Classificação</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <h2 style="text-align: center; margin-bottom: 30px;">Comparação de Países</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <select name="pais1">
+            {% for pais in paises %}
+            <option>{{ pais }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="pais2">
+            {% for pais in paises %}
+            <option>{{ pais }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Comparar</button>
+    </form>
+
+    {% if resultado %}
+    <div class="comparacao">
+
+        {% for side in "12" %}
+        {% with pais=resultado|dictsort:"pais"|first %}
+        {% endwith %}
+        {% endfor %}
+
+        <div class="pais-card">
+            <h2>{{ resultado.pais1.nome }}</h2>
+            <p><b>Região</b> {{ resultado.pais1.regiao }}</p>
+            <p><b>PIB</b> {{ resultado.pais1.pib }}</p>
+            <p><b>Inflação</b> {{ resultado.pais1.inflacao }}</p>
+            <p><b>IDH</b> {{ resultado.pais1.idh }}</p>
+            <p><b>Estabilidade</b> {{ resultado.pais1.estabilidade }}</p>
+            <p><b>PIB per Capita</b> US$ {{ resultado.pais1.pib_per_capita }}</p>
+            <p><b>Gastos Militares</b> {{ resultado.pais1.gastos_militares }}% PIB</p>
+            <p><b>Dívida Pública</b> {{ resultado.pais1.divida_publica }}% PIB</p>
+            <p><b>Gini</b> {{ resultado.pais1.gini }}</p>
+            <p><b>Democracia</b> {{ resultado.pais1.indice_democracia }}</p>
+            <p><b>Relações</b> {{ resultado.pais1.relacoes_internacionais }}</p>
+            {% if resultado.perfil_p1 %}
+            <hr style="border-color: var(--border); margin: 12px 0;">
+            <p><b>Classificação</b> <span style="color: var(--accent-blue);">{{ resultado.perfil_p1.classificacao }}</span></p>
+            <p><b>Arsenal Nuclear</b> {% if resultado.perfil_p1.nuclear %}Sim{% else %}Não{% endif %}</p>
+            <p><b>Conselho de Segurança</b> {{ resultado.perfil_p1.conselho }}</p>
+            {% if resultado.perfil_p1.blocos %}
+            <p><b>Blocos</b> {{ resultado.perfil_p1.blocos|join:", " }}</p>
+            {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="pais-card">
+            <h2>{{ resultado.pais2.nome }}</h2>
+            <p><b>Região</b> {{ resultado.pais2.regiao }}</p>
+            <p><b>PIB</b> {{ resultado.pais2.pib }}</p>
+            <p><b>Inflação</b> {{ resultado.pais2.inflacao }}</p>
+            <p><b>IDH</b> {{ resultado.pais2.idh }}</p>
+            <p><b>Estabilidade</b> {{ resultado.pais2.estabilidade }}</p>
+            <p><b>PIB per Capita</b> US$ {{ resultado.pais2.pib_per_capita }}</p>
+            <p><b>Gastos Militares</b> {{ resultado.pais2.gastos_militares }}% PIB</p>
+            <p><b>Dívida Pública</b> {{ resultado.pais2.divida_publica }}% PIB</p>
+            <p><b>Gini</b> {{ resultado.pais2.gini }}</p>
+            <p><b>Democracia</b> {{ resultado.pais2.indice_democracia }}</p>
+            <p><b>Relações</b> {{ resultado.pais2.relacoes_internacionais }}</p>
+            {% if resultado.perfil_p2 %}
+            <hr style="border-color: var(--border); margin: 12px 0;">
+            <p><b>Classificação</b> <span style="color: var(--accent-blue);">{{ resultado.perfil_p2.classificacao }}</span></p>
+            <p><b>Arsenal Nuclear</b> {% if resultado.perfil_p2.nuclear %}Sim{% else %}Não{% endif %}</p>
+            <p><b>Conselho de Segurança</b> {{ resultado.perfil_p2.conselho }}</p>
+            {% if resultado.perfil_p2.blocos %}
+            <p><b>Blocos</b> {{ resultado.perfil_p2.blocos|join:", " }}</p>
+            {% endif %}
+            {% endif %}
+        </div>
+
+    </div>
+    {% endif %}
+
+</div>
+
+<footer>
+    <p><strong>AGPy</strong> — Sistema de Análise Geopolítica de Países</p>
+    <p class="footer-sources">Dados: <a href="https://data.worldbank.org" target="_blank">Banco Mundial</a> · <a href="https://restcountries.com" target="_blank">RestCountries</a> · Python · Django · Pandas · Scikit-learn</p>
+</footer>
+
+</body>
+</html>
