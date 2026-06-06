@@ -1,4 +1,5 @@
 from django.contrib import admin
+# pyrefly: ignore [missing-import]
 from .models import Pais, Indicador, BlocoInternacional, PerfilGeopolitico
 
 
