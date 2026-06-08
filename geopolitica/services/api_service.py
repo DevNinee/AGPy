@@ -3,7 +3,7 @@ Wrapper do APIHandler com cache em memória.
 Evita chamadas repetidas à API durante a mesma execução do servidor.
 """
 import time
-from scripts.api_handler import APIHandler
+from legacy_scripts.api_handler import APIHandler
 
 # Cache simples em memória — suficiente para MVP
 # Em produção, substituir por Redis ou Django Cache Framework
