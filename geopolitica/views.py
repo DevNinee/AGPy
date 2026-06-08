@@ -1,7 +1,4 @@
-"""
-Views do sistema de Análise Geopolítica.
-Refatorado para usar services centralizados — elimina duplicação e separa responsabilidades (MVC).
-"""
+"""Views do sistema de análise geopolítica."""
 import io
 import json
 import base64
@@ -27,9 +24,7 @@ from geopolitica.services.api_service import (
 from geopolitica.models import Pais, PerfilGeopolitico, BlocoInternacional
 
 
-# ============================================================
-# DASHBOARD PRINCIPAL
-# ============================================================
+# --- Dashboard principal ---
 def index(request):
     historico = buscar_dados_cached("br", "FP.CPI.TOTL.ZG", fonte="world_bank")
     
@@ -57,9 +52,7 @@ def index(request):
     return render(request, "geopolitica/index.html", context)
 
 
-# ============================================================
-# RANKING
-# ============================================================
+# --- Ranking ---
 def ranking(request):
     df = carregar_dados()
     fonte = request.GET.get("fonte", "csv")
@@ -103,7 +96,7 @@ def ranking(request):
     else:
         ind_ordem = validar_indicador(indicador)
         ranking_list = df.sort_values(by=ind_ordem, ascending=False).to_dict(orient="records")
-        # Adicionar campo unificado para exibição
+        # Campo unificado para o template não precisar saber qual indicador foi escolhido
         for p in ranking_list:
             p["valor_indicador"] = p.get(ind_ordem, "N/A")
 
@@ -115,15 +108,13 @@ def ranking(request):
     })
 
 
-# ============================================================
-# COMPARAÇÃO ENTRE PAÍSES
-# ============================================================
+# --- Comparação entre países ---
 def comparar(request):
     from geopolitica.services.api_service import get_todos_paises_wb, get_iso2_global, buscar_dados_cached
     from geopolitica.services.dados_service import get_dado_recente
     df = carregar_dados()
-    
-    # 1. Obter a lista mestra de países (API) e usar ela no lugar do DF local
+
+    # Usa a lista completa de países da API; se ela falhar, cai para os nomes do CSV
     paises_mestre = get_todos_paises_wb()
     if not paises_mestre:
         paises_mestre = sorted(df["nome"].tolist())
@@ -158,9 +149,9 @@ def comparar(request):
             resultado_p1 = get_dados_pais(pais1)
             resultado_p2 = get_dados_pais(pais2)
 
-            # Enriquecer com dados da API
+            # Completa os dados locais com valores ao vivo da API
             for resultado, nome_pais in [(resultado_p1, pais1), (resultado_p2, pais2)]:
-                # Primeiro tenta pegar a sigla do CSV, senão usa do Global (World Bank)
+                # Tenta a sigla do CSV; se não houver, busca no mapa global do World Bank
                 sigla = get_sigla_iso2(nome_pais)
                 if not sigla:
                     sigla = get_iso2_global(nome_pais)
@@ -199,7 +190,6 @@ def comparar(request):
                             resultado["indice_democracia"] = "N/A (Apenas Base Local)"
                             resultado["relacoes_internacionais"] = "Análise qualitativa restrita aos países do CSV."
 
-            # Buscar perfis geopolíticos do banco
             perfil_p1 = _get_perfil_dict(pais1)
             perfil_p2 = _get_perfil_dict(pais2)
 
@@ -233,9 +223,7 @@ def _get_perfil_dict(nome_pais):
         return None
 
 
-# ============================================================
-# MAPA INTERATIVO
-# ============================================================
+# --- Mapa interativo ---
 def _iso3_para_iso2(iso3):
     """Converte um código ISO3 (ex: 'RUS') no ISO2 minúsculo usado pelo flagcdn (ex: 'ru')."""
     if not iso3:
@@ -252,7 +240,7 @@ def _iso3_para_iso2(iso3):
 
 def mapa(request):
     df = carregar_dados()
-    fonte = request.GET.get("fonte", "api") # Mudado de "csv" para "api" como padrão
+    fonte = request.GET.get("fonte", "api")  # mapa abre com dados globais por padrão
     indicador = request.GET.get("indicador", "pib")
     regiao_filtro = request.GET.get("regiao", "")
 
@@ -381,9 +369,7 @@ def _cor_por_indicador_local(indicador, valor, pib_min, pib_max):
     return "#30363d"
 
 
-# ============================================================
-# GRÁFICOS (Matplotlib server-side)
-# ============================================================
+# --- Gráficos (renderizados com Matplotlib no servidor) ---
 def graficos(request):
     df = carregar_dados()
     fonte = request.GET.get("fonte", "csv")
@@ -474,9 +460,7 @@ def graficos(request):
     return render(request, "geopolitica/graficos.html", context)
 
 
-# ============================================================
-# HISTÓRICO TEMPORAL (Chart.js + API)
-# ============================================================
+# --- Histórico temporal (Chart.js no browser + World Bank API) ---
 def historico(request):
     from geopolitica.services.api_service import get_todos_paises_wb
     df = carregar_dados()
@@ -513,7 +497,7 @@ def historico_dados(request):
             else:
                 valores.append(round(valor, 2))
 
-    # Análise de tendência (Bloco 4 — será implementada depois)
+    # Tendência e previsão da série (precisa de pelo menos 3 anos para valer a pena)
     tendencia = None
     previsao = None
     try:
@@ -525,7 +509,7 @@ def historico_dados(request):
             prox_ano, prox_valor = prever_proximo_ano(int_anos, valores)
             previsao = {"ano": prox_ano, "valor": round(prox_valor, 2)}
     except ImportError:
-        pass  # analise_service ainda não existe — será criado no Bloco 4
+        pass  # sem o service de análise, devolve só os dados brutos
 
     return JsonResponse({
         "pais": pais_nome,
@@ -538,9 +522,7 @@ def historico_dados(request):
     })
 
 
-# ============================================================
-# BUSCA DE PAÍSES
-# ============================================================
+# --- Busca de países ---
 def buscar(request):
     import requests as http_requests
 
@@ -619,10 +601,7 @@ def buscar(request):
     return render(request, "geopolitica/buscar.html", context)
 
 
-# ============================================================
-# EXPORTAÇÃO DE RELATÓRIOS
-# ============================================================
-
+# --- Exportação de relatórios ---
 def _get_df_for_export(request):
     fonte = request.GET.get("fonte", "csv")
     indicador = request.GET.get("indicador", "pib")
@@ -722,14 +701,9 @@ def exportar_pdf(request):
     return response
 
 
-# ============================================================
-# CLASSIFICAÇÃO GEOPOLÍTICA (Nova página — Bloco 4)
-# ============================================================
+# --- Classificação geopolítica ---
 def classificacao(request):
-    """
-    Exibe a classificação geopolítica de todos os países monitorados,
-    usando dados dos perfis + análise automática.
-    """
+    """Lista a classificação geopolítica de todos os países monitorados no banco."""
     paises = Pais.objects.prefetch_related('perfil', 'blocos', 'indicadores').all()
     
     paises_data = []
@@ -740,8 +714,7 @@ def classificacao(request):
             perfil = None
         
         blocos = list(pais.blocos.values_list('nome', flat=True))
-        
-        # Buscar indicadores do banco
+
         indicadores = {}
         for ind in pais.indicadores.filter(ano=2023):
             indicadores[ind.tipo] = ind.valor
@@ -763,7 +736,6 @@ def classificacao(request):
             "idh": indicadores.get("idh"),
         })
     
-    # Buscar todos os blocos para exibição
     blocos_list = BlocoInternacional.objects.prefetch_related('paises').all()
     blocos_data = []
     for bloco in blocos_list:

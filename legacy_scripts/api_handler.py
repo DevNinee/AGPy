@@ -1,19 +1,17 @@
 import requests
 
 
-# 1. Criamos a "Caixa de Ferramentas" (Classe) exigida no PDF
 class APIHandler:
-    
-    # O método __init__ prepara a caixa e guarda as configurações das APIs
+    """Cliente para as APIs do Banco Mundial e da ONU/PNUD."""
+
     def __init__(self, api_key_onu=None):
-        # Configurações do Banco Mundial (Aberta, sem chave)
+        # Banco Mundial: API aberta, não precisa de chave
         self.url_base_wb = "https://api.worldbank.org/v2"
-        
-        # Configurações da ONU/PNUD (Exige chave)
+
+        # ONU/PNUD: exige uma chave de acesso
         self.url_base_onu = "https://hdrdata.org/api/CompositeIndices"
         self.api_key_onu = api_key_onu
 
-    # 2. Ferramenta principal que decide de onde buscar os dados
     def buscar_dados(self, pais, indicador, fonte="world_bank", ano=None):
         """
         Busca dados na API especificada.
@@ -27,16 +25,15 @@ class APIHandler:
             print(f"Erro: Fonte '{fonte}' desconhecida.")
             return None
 
-    # 3. Lógica específica para o Banco Mundial
     def _buscar_dados_banco_mundial(self, pais, indicador):
-        # Montamos a URL completa (ex: country/br/indicator/NY.GDP.MKTP.CD)
+        # Ex.: .../country/br/indicator/NY.GDP.MKTP.CD
         url_completa = f"{self.url_base_wb}/country/{pais}/indicator/{indicador}?format=json"
-        
+
         resposta = requests.get(url_completa)
-        
+
         if resposta.status_code == 200:
             dados = resposta.json()
-            # A API do Banco Mundial retorna metadados no índice 0 e os dados no índice 1
+            # O índice 0 traz metadados e o índice 1 os dados de fato
             if len(dados) > 1 and dados[1]:
                 return dados[1]
             return None
@@ -44,16 +41,13 @@ class APIHandler:
             print(f"Erro do Banco Mundial (Status: {resposta.status_code})")
             return None
 
-    # 4. Lógica específica para a ONU (IDH, etc)
     def _buscar_dados_onu(self, pais, indicador, ano=None):
         if not self.api_key_onu:
             print("Erro: Para buscar dados da ONU, você precisa fornecer a api_key_onu ao instanciar o APIHandler.")
             print("Cadastre-se em hdrdata.org para obter sua chave.")
             return None
-            
-        # Estrutura básica para a chamada da ONU
-        # Exemplo: /query?apikey=SUA_CHAVE&countryOrAggregation=BRA&indicator=hdi
-        # Nota: A API da ONU usa códigos ISO3 (ex: BRA), enquanto Banco Mundial aceita ISO2 (ex: br)
+
+        # A ONU usa ISO3 (ex.: BRA), diferente do Banco Mundial, que aceita ISO2 (ex.: br)
         pais_iso3 = pais.upper()
         url_completa = f"{self.url_base_onu}/query?apikey={self.api_key_onu}&countryOrAggregation={pais_iso3}&indicator={indicador}"
         
@@ -68,11 +62,10 @@ class APIHandler:
             print(f"Erro da ONU (Status: {resposta.status_code})")
             return None
 
-    # 5. Busca Global em Lote (World Bank Bulk API)
     def buscar_dados_globais(self, indicador, ano=2022):
         """
-        Busca os dados de todos os países do mundo de uma vez só.
-        Isso é vital para não travar a aplicação renderizando o mapa/ranking mundial.
+        Busca os dados de todos os países de uma vez só.
+        Evita uma chamada por país ao montar o mapa ou o ranking mundial.
         """
         url_completa = f"{self.url_base_wb}/country/all/indicator/{indicador}?format=json&date={ano}&per_page=300"
         try:
@@ -86,20 +79,16 @@ class APIHandler:
             print("Erro ao buscar dados globais:", e)
             return []
 
-# =======================================================
-# Testando se a nossa Caixa de Ferramentas funciona:
-# =======================================================
+# Teste rápido ao rodar o arquivo direto: gera o gráfico de inflação do Brasil
 if __name__ == "__main__":
     import matplotlib
-    matplotlib.use('Agg') # Evita erro de interface gráfica no Mac
+    matplotlib.use('Agg')  # backend sem interface gráfica
     import matplotlib.pyplot as plt
 
-    # Pegamos a caixa (Instanciamos a classe sem a chave da ONU por enquanto)
     api = APIHandler()
-    
-    print("Buscando dados com a nova Classe (Banco Mundial)...")
-    
-    # Pedimos a INFLAÇÃO pelo Banco Mundial
+
+    print("Buscando dados do Banco Mundial...")
+
     historico_inflacao = api.buscar_dados("br", "FP.CPI.TOTL.ZG", fonte="world_bank")
     
     if historico_inflacao:
@@ -113,18 +102,16 @@ if __name__ == "__main__":
                 
         anos.reverse()
         valores.reverse()
-    
-        # Desenhando o gráfico de Inflação
+
         plt.plot(anos, valores, marker='o', color='red')
         plt.title("Evolução Histórica da Inflação do Brasil (10 Anos)")
         plt.xlabel("Ano")
         plt.ylabel("Inflação (%)")
         plt.grid(True)
-        
-        # Salvando o gráfico
+
         from pathlib import Path
         pasta_graficos = Path(__file__).resolve().parent.parent / "media" / "graficos"
-        pasta_graficos.mkdir(exist_ok=True) # Garante que a pasta existe
+        pasta_graficos.mkdir(exist_ok=True)
         caminho_arquivo = pasta_graficos / "evolucao_inflacao.png"
         
         plt.savefig(caminho_arquivo)
@@ -132,5 +119,5 @@ if __name__ == "__main__":
     else:
         print("Não foi possível obter dados para gerar o gráfico.")
         
-    print("\nTestando integração com a ONU (vai falhar intencionalmente sem a chave):")
+    print("\nTeste da ONU (falha de propósito, pois não passamos a chave):")
     api.buscar_dados("BRA", "hdi", fonte="onu")

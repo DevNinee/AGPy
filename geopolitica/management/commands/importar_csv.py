@@ -134,7 +134,7 @@ class Command(BaseCommand):
     help = "Importa dados do CSV e dados geopolíticos complementares para o banco de dados Django."
 
     def handle(self, *args, **options):
-        csv_path = Path(__file__).resolve().parent.parent.parent.parent / "dados" / "paises.csv"
+        csv_path = Path(__file__).resolve().parent.parent.parent.parent / "data" / "paises.csv"
         
         if not csv_path.exists():
             self.stderr.write(self.style.ERROR(f"CSV não encontrado: {csv_path}"))

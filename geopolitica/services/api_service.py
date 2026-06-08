@@ -3,12 +3,11 @@ Wrapper do APIHandler com cache em memória.
 Evita chamadas repetidas à API durante a mesma execução do servidor.
 """
 import time
-from scripts.api_handler import APIHandler
+from legacy_scripts.api_handler import APIHandler
 
-# Cache simples em memória — suficiente para MVP
-# Em produção, substituir por Redis ou Django Cache Framework
+# Cache em memória do processo. Para produção valeria trocar por Redis ou o cache do Django.
 _cache = {}
-_CACHE_TTL = 3600  # 1 hora em segundos
+_CACHE_TTL = 3600  # segundos
 
 
 def _cache_key(pais, indicador, fonte, ano=None):
@@ -16,31 +15,22 @@ def _cache_key(pais, indicador, fonte, ano=None):
 
 
 def buscar_dados_cached(pais, indicador, fonte="world_bank", ano=None):
-    """
-    Busca dados com cache — evita chamadas repetidas à API.
-    Cada resultado fica em cache por 1 hora.
-    """
+    """Busca os dados de um país, reaproveitando o cache por até uma hora."""
     key = _cache_key(pais, indicador, fonte, ano)
-    
-    # Verifica cache
+
     if key in _cache:
         dados, timestamp = _cache[key]
         if time.time() - timestamp < _CACHE_TTL:
             return dados
-    
-    # Cache miss — busca na API
+
     api = APIHandler()
     resultado = api.buscar_dados(pais, indicador, fonte=fonte, ano=ano)
-    
-    # Armazena no cache
     _cache[key] = (resultado, time.time())
     return resultado
 
 
 def buscar_dados_globais_cached(indicador_wb, ano=2022):
-    """
-    Busca dados globais com cache.
-    """
+    """Busca os dados de todos os países de uma vez, com cache."""
     key = f"global:{indicador_wb}:{ano}"
     
     if key in _cache:
@@ -72,9 +62,10 @@ def get_todos_paises_wb():
         if r.status_code == 200:
             res = r.json()
             if len(res) > 1 and res[1]:
+                # Remove os "Aggregates" (regiões e grupos de renda), deixando só países
                 paises = [p for p in res[1] if p.get('region', {}).get('value') != 'Aggregates']
-                
-                # Armazenar mapeamento global nome -> iso2
+
+                # Guarda também o mapa nome -> iso2 para resolver siglas depois
                 mapa_global = {p['name']: p['iso2Code'].lower() for p in paises if p.get('iso2Code')}
                 _cache["mapa_global_iso2"] = (mapa_global, __import__('time').time())
                 
@@ -87,7 +78,7 @@ def get_todos_paises_wb():
     return []
 
 def get_iso2_global(nome_pais):
-    get_todos_paises_wb() # Garante que o cache está populado
+    get_todos_paises_wb()  # garante que o mapa de siglas já foi carregado
     if "mapa_global_iso2" in _cache:
         mapa, _ = _cache["mapa_global_iso2"]
         return mapa.get(nome_pais, "")

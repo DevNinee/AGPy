@@ -1,15 +1,11 @@
-"""
-Serviço centralizado de acesso a dados.
-Elimina duplicações de carregar_dados(), MAPA_SIGLAS e get_dado_recente()
-que estavam espalhadas por views.py.
-"""
+"""Acesso centralizado aos dados locais (CSV) e às constantes compartilhadas pelas views."""
 import pandas as pd
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CSV_PATH = BASE_DIR / "data" / "paises.csv"
 
-# Mapa centralizado de nomes → siglas ISO2 (antes duplicado 3x na views.py)
+# Nomes dos países monitorados localmente → sigla ISO2 (usada pelo flagcdn e World Bank)
 MAPA_SIGLAS = {
     "Brasil": "br", "Estados Unidos": "us", "China": "cn",
     "Alemanha": "de", "Índia": "in", "Japão": "jp",
@@ -46,15 +42,12 @@ CODIGOS_API_WB = {
 
 
 def carregar_dados():
-    """Carrega dados do CSV — ponto único de leitura (antes duplicado 3x)."""
+    """Lê o CSV de países e devolve um DataFrame."""
     return pd.read_csv(CSV_PATH)
 
 
 def get_dado_recente(historico, divisor=1):
-    """
-    Extrai o valor mais recente de uma resposta da API do World Bank.
-    Centralizado aqui — antes era definido 2x dentro de views.py.
-    """
+    """Extrai o valor mais recente (não nulo) de uma resposta do World Bank."""
     if historico:
         for registro in historico:
             if registro.get('value') is not None:
