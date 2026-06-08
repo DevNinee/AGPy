@@ -1,9 +1,8 @@
 """
-Serviço de Análise com Scikit-learn.
-Implementa as funcionalidades de ML prometidas no documento:
-- Detecção de tendências (regressão linear)
-- Previsão para o próximo ano
-- Classificação geopolítica automática
+Análises baseadas em scikit-learn:
+- detecção de tendência de uma série (regressão linear)
+- previsão do próximo ano
+- classificação geopolítica automática por pontuação
 """
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -27,16 +26,16 @@ def detectar_tendencia(anos, valores):
     modelo.fit(X, y)
     
     coef = modelo.coef_[0]
-    
-    # Normaliza o coeficiente pela média dos valores para ter sensibilidade relativa
+
+    # Mede a inclinação em relação à média, para comparar países de escalas diferentes
     media = np.mean(y)
     if media != 0:
-        variacao_relativa = abs(coef / media) * 100  # % de variação por ano
+        variacao_relativa = abs(coef / media) * 100
     else:
         variacao_relativa = abs(coef)
-    
-    # Thresholds para classificação
-    if variacao_relativa > 2:  # mais de 2% de variação anual
+
+    # Abaixo de 2% ao ano consideramos a série estável
+    if variacao_relativa > 2:
         if coef > 0:
             return 'crescente', coef
         else:
@@ -86,25 +85,25 @@ def calcular_score_r2(anos, valores):
 
 def classificar_pais_automaticamente(indicadores):
     """
-    Classifica um país com base em múltiplos indicadores.
-    Usa um sistema de pontuação ponderada (decision-tree simplificado).
-    
-    indicadores: dict com chaves como 'pib', 'gastos_militares', 'nuclear', 
+    Classifica um país somando pontos de cada indicador (PIB, arsenal nuclear,
+    assento no Conselho de Segurança, gastos militares e IDH).
+
+    indicadores: dict com chaves como 'pib', 'gastos_militares', 'nuclear',
                  'conselho_p5', 'democracia', etc.
-    
+
     Retorna: (classificacao, score, justificativas)
     """
     score = 0
     justificativas = []
-    
+
     pib = indicadores.get('pib', 0)
     gastos_mil = indicadores.get('gastos_militares', 0)
     nuclear = indicadores.get('nuclear', False)
     conselho_p5 = indicadores.get('conselho_p5', False)
     democracia = indicadores.get('democracia', 5.0)
     idh = indicadores.get('idh', 0.5)
-    
-    # PIB (peso forte)
+
+    # PIB é o critério de maior peso
     if pib > 15000:
         score += 30
         justificativas.append(f"PIB acima de US$ 15 trilhões")

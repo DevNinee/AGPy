@@ -2,10 +2,7 @@ from django.db import models
 
 
 class Pais(models.Model):
-    """
-    Representa um país no sistema de análise geopolítica.
-    Corresponde à classe 'País' do diagrama de classes do documento.
-    """
+    """Um país monitorado pelo sistema."""
     nome = models.CharField(max_length=100, unique=True)
     codigo_iso2 = models.CharField(max_length=2, blank=True, default='')
     codigo_iso3 = models.CharField(max_length=3, blank=True, default='')
@@ -23,11 +20,7 @@ class Pais(models.Model):
 
 
 class Indicador(models.Model):
-    """
-    Representa um indicador econômico, político ou social de um país.
-    Inclui o atributo 'ano' para séries temporais, conforme evolução
-    descrita no documento de modelagem.
-    """
+    """Um indicador (econômico, político ou social) de um país em determinado ano."""
     class Categoria(models.TextChoices):
         ECONOMICO = 'ECO', 'Econômico'
         POLITICO = 'POL', 'Político'
@@ -57,10 +50,7 @@ class Indicador(models.Model):
 
 
 class BlocoInternacional(models.Model):
-    """
-    Representa organizações e blocos internacionais (OTAN, BRICS, G7, etc.).
-    Relação N:N com País — substitui o campo texto livre 'relacoes_internacionais'.
-    """
+    """Organização ou bloco internacional (OTAN, BRICS, G7, ...), com vários países membros."""
     class TipoBloco(models.TextChoices):
         MILITAR = 'MIL', 'Militar'
         ECONOMICO = 'ECO', 'Econômico'
@@ -85,10 +75,7 @@ class BlocoInternacional(models.Model):
 
 
 class PerfilGeopolitico(models.Model):
-    """
-    Perfil geopolítico de um país com classificação baseada em
-    critérios de Relações Internacionais (potência global, regional, etc.).
-    """
+    """Perfil geopolítico de um país e sua classificação como potência."""
     class Classificacao(models.TextChoices):
         SUPERPOTENCIA = 'SUP', 'Superpotência'
         GRANDE_POTENCIA = 'GRA', 'Grande Potência'

@@ -4,7 +4,6 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 CSV_PATH = BASE_DIR / "data" / "paises.csv"
 
-# Função para carregar os dados do CSV
 def carregar_dados():
     df = pd.read_csv(CSV_PATH)
     return df
@@ -134,14 +133,12 @@ def main():
             filtrar_por_regiao(df, regiao)
 
         elif opcao == "4":
-            # Puxamos nossa ferramenta e mandamos exportar!
             gerador = Relatorio(df)
-            gerador.exportar_excel()    
+            gerador.exportar_excel()
 
         elif opcao == "5":
-            # Puxamos nossa ferramenta e mandamos exportar!
             gerador = Relatorio(df)
-            gerador.gerar_pdf() 
+            gerador.gerar_pdf()
 
         elif opcao == "0":
             break
