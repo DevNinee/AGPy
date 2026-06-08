@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-CSV_PATH = BASE_DIR / "dados" / "paises.csv"
+CSV_PATH = BASE_DIR / "data" / "paises.csv"
 
 # Função para carregar os dados do CSV
 def carregar_dados():
@@ -54,7 +54,7 @@ class Relatorio:
         self.df = df
 
     def exportar_excel(self):
-        pasta = Path(__file__).resolve().parent.parent / "relatorios"
+        pasta = Path(__file__).resolve().parent.parent / "media" / "relatorios"
         pasta.mkdir(exist_ok=True)
         caminho = pasta / "relatorio_geopolitico.xlsx"
         self.df.to_excel(caminho, index=False)
@@ -63,7 +63,7 @@ class Relatorio:
     def gerar_pdf(self):
         from fpdf import FPDF
 
-        pasta = Path(__file__).resolve().parent.parent / "relatorios"
+        pasta = Path(__file__).resolve().parent.parent / "media" / "relatorios"
         pasta.mkdir(exist_ok=True)
 
         pdf = FPDF()

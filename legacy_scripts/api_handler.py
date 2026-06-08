@@ -123,7 +123,7 @@ if __name__ == "__main__":
         
         # Salvando o gráfico
         from pathlib import Path
-        pasta_graficos = Path(__file__).resolve().parent.parent / "graficos"
+        pasta_graficos = Path(__file__).resolve().parent.parent / "media" / "graficos"
         pasta_graficos.mkdir(exist_ok=True) # Garante que a pasta existe
         caminho_arquivo = pasta_graficos / "evolucao_inflacao.png"
         
