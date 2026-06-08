@@ -7,7 +7,7 @@ import pandas as pd
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-CSV_PATH = BASE_DIR / "dados" / "paises.csv"
+CSV_PATH = BASE_DIR / "data" / "paises.csv"
 
 # Mapa centralizado de nomes → siglas ISO2 (antes duplicado 3x na views.py)
 MAPA_SIGLAS = {

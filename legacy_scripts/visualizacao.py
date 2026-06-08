@@ -5,9 +5,9 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-CSV_PATH = BASE_DIR / "dados" / "paises.csv"
-GRAFICOS_DIR = BASE_DIR / "graficos"
-MAPAS_DIR = BASE_DIR / "mapas"
+CSV_PATH = BASE_DIR / "data" / "paises.csv"
+GRAFICOS_DIR = BASE_DIR / "media" / "graficos"
+MAPAS_DIR = BASE_DIR / "media" / "mapas"
 
 GRAFICOS_DIR.mkdir(exist_ok=True)
 MAPAS_DIR.mkdir(exist_ok=True)
