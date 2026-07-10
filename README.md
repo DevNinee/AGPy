@@ -1,42 +1,42 @@
-# Sistema de Analise Geopolitica (AGPy)
+# Sistema de Análise Geopolítica (AGPy)
 
-O AGPy e um sistema desenvolvido em Python e estruturado no framework Django para coleta, integracao, analise e visualizacao de dados geopoliticos. A aplicacao permite a comparacao entre paises com base em indicadores economicos e politicos fundamentais, como PIB, Inflacao, e IDH.
+O AGPy é um sistema desenvolvido em Python e estruturado no framework Django para coleta, integração, análise e visualização de dados geopolíticos. A aplicação permite a comparação entre países com base em indicadores econômicos e políticos fundamentais, como PIB, Inflação, e IDH.
 
 ## Como o Projeto Foi Desenvolvido
 
-O projeto segue um modelo de expansao em 4 fases e adota a arquitetura MVC (Model-View-Controller) suportada pelo MVT (Model-View-Template) do Django:
+O projeto segue um modelo de expansão em 4 fases e adota a arquitetura MVC (Model-View-Controller) suportada pelo MVT (Model-View-Template) do Django:
 
-- Fase 1 (MVP com Dados Locais): Scripts em Python focados em importar e cruzar dados de arquivos estaticos (CSV) utilizando a biblioteca Pandas. Os modulos de processamento bruto estao preservados na pasta `legacy_scripts/` e integrados em `geopolitica/services/`.
-- Fase 2 (Visualizacao Basica): Geracao de graficos comparativos estatisticos com Matplotlib e mapas baseados em HTML usando Folium. As midias geradas dinamicamente sao armazenadas na pasta `media/`.
-- Fase 3 (Interface Web): Transicao do terminal para ambiente web com rotas dinâmicas utilizando o framework Django.
-- Fase 4 (Consumo Dinamico): Camada de servicos capaz de conectar-se futuramente a APIs externas de instituicoes globais atraves de modulos como `APIHandler` no backend.
+- Fase 1 (MVP com Dados Locais): Scripts em Python focados em importar e cruzar dados de arquivos estáticos (CSV) utilizando a biblioteca Pandas. Os módulos de processamento bruto estão preservados na pasta `legacy_scripts/` e integrados em `geopolitica/services/`.
+- Fase 2 (Visualização Básica): Geração de gráficos comparativos estatísticos com Matplotlib e mapas baseados em HTML usando Folium. As mídias geradas dinamicamente são armazenadas na pasta `media/`.
+- Fase 3 (Interface Web): Transição do terminal para ambiente web com rotas dinâmicas utilizando o framework Django.
+- Fase 4 (Consumo Dinâmico): Camada de serviços capaz de conectar-se futuramente a APIs externas de instituições globais através de módulos como `APIHandler` no backend.
 
-O motor analitico inclui pontuacoes ponderadas e uso da biblioteca Scikit-Learn (Inteligencia Artificial) para detectar variacoes percentuais e prever possiveis cenarios de estabilidade politica.
+O motor analítico inclui pontuações ponderadas e uso da biblioteca Scikit-Learn (Inteligência Artificial) para detectar variações percentuais e prever possíveis cenários de estabilidade política.
 
-## Estrutura de Diretorios
+## Estrutura de Diretórios
 
 ```
 AGPy/
-├── agpy/                  # Configuracoes principais do projeto Django (Settings, URLs)
+├── agpy/                  # Configurações principais do projeto Django (Settings, URLs)
 ├── data/                  # Fontes de dados locais em formato CSV/JSON
-├── docs/                  # Documentacao de requisitos e modelagem estrutural
+├── docs/                  # Documentação de requisitos e modelagem estrutural
 ├── geopolitica/           # Aplicativo central do Django contendo o Controller (views) e Views (templates)
-│   ├── services/          # Model: Logicas de inteligencia de dados e integracao (Scikit-Learn, Pandas)
-│   ├── templates/         # Arquivos de renderizacao HTML
-│   └── static/            # Arquivos estaticos CSS e JS
-├── legacy_scripts/        # Codigos iniciais e scripts de execucao pelo terminal para consulta rapida
-├── media/                 # Saida dinamica do sistema
-│   ├── graficos/          # Exportacoes Matplotlib/Plotly
-│   ├── mapas/             # Renderizacoes Folium
-│   └── relatorios/        # Saidas do sistema em formato Excel e PDF
-└── sandbox_html/          # Arquivos e paginas de testes isolados
+│   ├── services/          # Model: Lógicas de inteligência de dados e integração (Scikit-Learn, Pandas)
+│   ├── templates/         # Arquivos de renderização HTML
+│   └── static/            # Arquivos estáticos CSS e JS
+├── legacy_scripts/        # Códigos iniciais e scripts de execução pelo terminal para consulta rápida
+├── media/                 # Saída dinâmica do sistema
+│   ├── graficos/          # Exportações Matplotlib/Plotly
+│   ├── mapas/             # Renderizações Folium
+│   └── relatorios/        # Saídas do sistema em formato Excel e PDF
+└── sandbox_html/          # Arquivos e páginas de testes isolados
 ```
 
 ## Como Instalar e Testar
 
-Siga os passos abaixo para preparar o ambiente virtual e rodar o servidor em sua maquina local.
+Siga os passos abaixo para preparar o ambiente virtual e rodar o servidor em sua máquina local.
 
-### 1. Criacao e Ativacao do Ambiente Virtual
+### 1. Criação e Ativação do Ambiente Virtual
 
 Abra o terminal na raiz do projeto e crie um ambiente virtual:
 
@@ -48,23 +48,23 @@ Ative o ambiente virtual:
 - macOS/Linux: `source venv/bin/activate`
 - Windows: `venv\Scripts\activate`
 
-### 2. Instalacao de Dependencias
+### 2. Instalação de Dependências
 
-Instale as bibliotecas exigidas para processamento de dados e operacao do Django:
+Instale as bibliotecas exigidas para processamento de dados e operação do Django:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configuracoes do Banco de Dados
+### 3. Configurações do Banco de Dados
 
-O projeto utiliza o SQLite configurado por padrao, facilitando a portabilidade e testes iniciais. Para inicializar e preparar a base:
+O projeto utiliza o SQLite configurado por padrão, facilitando a portabilidade e testes iniciais. Para inicializar e preparar a base:
 
 ```bash
 python manage.py migrate
 ```
 
-### 4. Execucao do Servidor
+### 4. Execução do Servidor
 
 Para iniciar o servidor local:
 
@@ -72,11 +72,11 @@ Para iniciar o servidor local:
 python manage.py runserver
 ```
 
-Acesse a aplicacao em seu navegador no seguinte endereco local: `http://127.0.0.1:8000/`.
+Acesse a aplicação em seu navegador no seguinte endereço local: `http://127.0.0.1:8000/`.
 
-### 5. Execucao de Modulos Auxiliares via Terminal (Opcional)
+### 5. Execução de Módulos Auxiliares via Terminal (Opcional)
 
-Se desejar testar a funcionalidade isolada dos scripts originais e modulos da Fase 1, e possivel acionar os codigos contidos no diretorio `legacy_scripts`. Exemplo:
+Se desejar testar a funcionalidade isolada dos scripts originais e módulos da Fase 1, é possível acionar os códigos contidos no diretório `legacy_scripts`. Exemplo:
 
 ```bash
 python legacy_scripts/analise.py
