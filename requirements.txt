@@ -7,3 +7,5 @@ fpdf2
 scikit-learn
 openpyxl
 pycountry
+gunicorn
+whitenoise
