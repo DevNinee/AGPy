@@ -1,4 +1,5 @@
 """Acesso centralizado aos dados locais (CSV) e às constantes compartilhadas pelas views."""
+import unicodedata
 import pandas as pd
 from pathlib import Path
 
@@ -65,3 +66,63 @@ def validar_indicador(indicador, padrao="pib"):
     if indicador in COLUNAS_ORDENACAO:
         return indicador
     return padrao
+
+
+def _normalizar(texto):
+    """Remove acentos e caixa para comparar aliases (ex.: 'Índia' == 'india' == 'INDIA')."""
+    if not texto:
+        return ""
+    sem_acento = unicodedata.normalize("NFKD", str(texto)).encode("ascii", "ignore").decode("ascii")
+    return sem_acento.strip().lower()
+
+
+def resolver_pais(query):
+    """
+    Resolve um termo (nome local em português, nome em inglês da API do World Bank ou
+    código ISO2) para um único objeto canônico de país — a mesma entidade, não importa
+    o alias ou o idioma usado para chegar nela (ex.: "Brasil", "BR", "brasil" e "Brazil"
+    resolvem todos para o mesmo país local).
+
+    Retorna um dict {"id": "BR", "nome": "Brasil", "iso2": "br", "fonte": "local"|"global"}
+    ou None se nenhum alias local/global corresponder exatamente ao termo.
+    """
+    if not query:
+        return None
+    alvo = _normalizar(query)
+    if not alvo:
+        return None
+
+    iso2_para_nome_local = {iso2.lower(): nome for nome, iso2 in MAPA_SIGLAS.items()}
+
+    # 1. Código ISO2 de um país local (ex.: "BR" -> Brasil)
+    if alvo in iso2_para_nome_local:
+        iso2 = alvo
+        return {"id": iso2.upper(), "nome": iso2_para_nome_local[iso2], "iso2": iso2, "fonte": "local"}
+
+    # 2. Nome local (português), com ou sem acento/caixa (ex.: "brasil", "BRASIL" -> Brasil)
+    for nome, iso2 in MAPA_SIGLAS.items():
+        if alvo == _normalizar(nome):
+            return {"id": iso2.upper(), "nome": nome, "iso2": iso2, "fonte": "local"}
+
+    # 3. Universo global (World Bank): nome em inglês ou código ISO2 de qualquer país do mundo.
+    #    Se o país resolvido tiver um equivalente monitorado localmente (ex.: "Brazil" -> Brasil,
+    #    mesmo iso2 "br"), devolvemos a identidade local — assim buscar em inglês ("Brazil",
+    #    "Germany", "United States"...) encontra o mesmo perfil rico que buscar em português.
+    try:
+        from geopolitica.services.api_service import get_todos_paises_wb, get_iso2_global
+        for nome_global in get_todos_paises_wb():
+            iso2_global = get_iso2_global(nome_global)
+            if alvo == _normalizar(nome_global) or (iso2_global and alvo == iso2_global.lower()):
+                if iso2_global and iso2_global.lower() in iso2_para_nome_local:
+                    nome_local = iso2_para_nome_local[iso2_global.lower()]
+                    return {"id": iso2_global.upper(), "nome": nome_local, "iso2": iso2_global, "fonte": "local"}
+                return {
+                    "id": (iso2_global or nome_global[:2]).upper(),
+                    "nome": nome_global,
+                    "iso2": iso2_global,
+                    "fonte": "global",
+                }
+    except Exception:
+        pass
+
+    return None

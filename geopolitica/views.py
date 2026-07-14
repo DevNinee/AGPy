@@ -16,7 +16,7 @@ import pandas as pd
 from geopolitica.services.dados_service import (
     carregar_dados, get_dado_recente, get_sigla_iso2,
     MAPA_SIGLAS, INDICADORES_DISPONIVEIS, CODIGOS_API_WB,
-    validar_indicador,
+    validar_indicador, resolver_pais,
 )
 from geopolitica.services.api_service import (
     buscar_dados_cached, buscar_dados_globais_cached,
@@ -115,9 +115,18 @@ def comparar(request):
     df = carregar_dados()
 
     # Usa a lista completa de países da API; se ela falhar, cai para os nomes do CSV
-    paises_mestre = get_todos_paises_wb()
-    if not paises_mestre:
+    paises_globais = get_todos_paises_wb()
+    if not paises_globais:
         paises_mestre = sorted(df["nome"].tolist())
+    else:
+        # Um mesmo país não pode aparecer duas vezes com identidades diferentes
+        # (ex.: "Brazil" da API e "Brasil" do CSV): sempre que o país global tiver um
+        # equivalente local, usamos o nome local como identificador canônico único.
+        iso2_para_nome_local = {iso2: nome for nome, iso2 in MAPA_SIGLAS.items()}
+        paises_mestre = sorted({
+            iso2_para_nome_local.get(get_iso2_global(nome_global), nome_global)
+            for nome_global in paises_globais
+        })
         
     context = {"paises": paises_mestre}
 
@@ -173,15 +182,15 @@ def comparar(request):
                             buscar_dados_cached(sigla, "SI.POV.GINI", fonte="world_bank")
                         )
                         
-                        if pib_vivo:
+                        if pib_vivo is not None:
                             resultado["pib"] = f"{pib_vivo} bi (API)"
-                        if inf_vivo:
+                        if inf_vivo is not None:
                             resultado["inflacao"] = f"{inf_vivo}% (API)"
-                        if pib_pc:
+                        if pib_pc is not None:
                             resultado["pib_per_capita"] = f"{pib_pc:,.2f} (API)"
-                        if gastos_mil:
+                        if gastos_mil is not None:
                             resultado["gastos_militares"] = f"{gastos_mil} (API)"
-                        if gini:
+                        if gini is not None:
                             resultado["gini"] = f"{gini} (API)"
                         
                         if resultado["idh"] == "N/A":
@@ -533,23 +542,29 @@ def buscar(request):
     perfil = None
 
     if query:
-        # Tenta busca local exata
-        encontrado = df[df["nome"].str.lower() == query.lower()]
+        # Resolve aliases (nome local, nome global da API ou código ISO2) para um único
+        # país canônico, para que "Brasil", "BR" e "brasil" cheguem ao mesmo resultado.
+        resolvido = resolver_pais(query)
+
+        # Tenta busca local exata (usando o nome canônico já resolvido, se houver)
+        nome_busca_local = resolvido["nome"] if resolvido and resolvido["fonte"] == "local" else query
+        encontrado = df[df["nome"].str.lower() == nome_busca_local.lower()]
         if not encontrado.empty:
             resultado = encontrado.iloc[0].to_dict()
             resultado['iso2'] = get_sigla_iso2(resultado['nome']) or "br"
             perfil = _get_perfil_dict(resultado['nome'])
         else:
             # Tenta busca parcial local
-            parcial = df[df["nome"].str.lower().str.contains(query.lower())]
+            parcial = df[df["nome"].str.lower().str.contains(query.lower(), regex=False)]
             if not parcial.empty:
                 resultado = parcial.iloc[0].to_dict()
                 resultado['iso2'] = get_sigla_iso2(resultado['nome']) or "br"
                 perfil = _get_perfil_dict(resultado['nome'])
             else:
-                # Fallback: RestCountries API
+                # Fallback: RestCountries API (usa o nome canônico global já resolvido, se houver)
+                termo_busca = resolvido["nome"] if resolvido and resolvido["fonte"] == "global" else query
                 try:
-                    resp = http_requests.get(f"https://restcountries.com/v3.1/translation/{query}", timeout=5)
+                    resp = http_requests.get(f"https://restcountries.com/v3.1/translation/{termo_busca}", timeout=5)
                     if resp.status_code == 200:
                         dados_rc = resp.json()[0]
                         cca2 = dados_rc.get("cca2", "").lower()

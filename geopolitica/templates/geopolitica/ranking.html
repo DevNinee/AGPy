@@ -7,6 +7,7 @@
     <meta name="description" content="AGPy — Ranking econômico e geopolítico dos países analisados.">
     <title>AGPy - Ranking</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <script src="{% static 'js/estado-pais.js' %}"></script>
 </head>
 <body>
 
@@ -20,6 +21,7 @@
         <a href="/historico/">Histórico</a>
         <a href="/mapa/">Mapa</a>
         <a href="/classificacao/">Classificação</a>
+        <a href="/buscar/">Buscar</a>
     </nav>
 </header>
 
@@ -28,16 +30,17 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 style="margin: 0; text-align: center;">Ranking Econômico Mundial</h2>
         
-        <form id="form-filtros" action="{% url 'ranking' %}" method="GET" style="display: flex; gap: 10px; align-items: center;">
-            <select name="fonte" onchange="document.getElementById('form-filtros').submit()" style="background:#161b22; border: 1px solid #388bfd; border-radius:6px; color:#e6edf3; padding: 8px 12px; font-weight:600; font-size: 0.9rem; cursor:pointer; outline: none;">
+        <form id="form-filtros" action="{% url 'ranking' %}" method="GET" style="display: flex; gap: 10px; align-items: center;" onsubmit="this.classList.add('is-loading');">
+            <select name="fonte" onchange="this.form.classList.add('is-loading'); this.form.submit()" style="background:#161b22; border: 1px solid #388bfd; border-radius:6px; color:#e6edf3; padding: 8px 12px; font-weight:600; font-size: 0.9rem; cursor:pointer; outline: none;">
                 <option value="csv" {% if fonte_atual == 'csv' %}selected{% endif %}>Top 10 Local (CSV)</option>
                 <option value="api" {% if fonte_atual == 'api' %}selected{% endif %}>Top 50 Global (API)</option>
             </select>
-            <select name="indicador" onchange="document.getElementById('form-filtros').submit()" style="background:#161b22; border: 1px solid #30363d; border-radius:6px; color:#c9d1d9; padding: 8px 12px; font-weight:500; font-size: 0.9rem; cursor:pointer; outline: none;">
+            <select name="indicador" onchange="this.form.classList.add('is-loading'); this.form.submit()" style="background:#161b22; border: 1px solid #30363d; border-radius:6px; color:#c9d1d9; padding: 8px 12px; font-weight:500; font-size: 0.9rem; cursor:pointer; outline: none;">
                 <option value="pib" {% if indicador_atual == 'pib' %}selected{% endif %}>Ordenar por PIB</option>
                 <option value="inflacao" {% if indicador_atual == 'inflacao' %}selected{% endif %}>Ordenar por Inflação</option>
                 <option value="idh" {% if indicador_atual == 'idh' %}selected{% endif %}>Ordenar por IDH</option>
             </select>
+            <span class="form-loading-note"><span class="spinner spinner-dark"></span> Atualizando...</span>
         </form>
 
         <div style="display: flex; gap: 10px;">
@@ -46,22 +49,24 @@
         </div>
     </div>
 
-    <table class="ranking-table">
-        <tr>
-            <th>#</th>
-            <th>País</th>
-            <th>Região</th>
-            <th>{{ indicador_label }}</th>
-        </tr>
-        {% for pais in paises %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ pais.nome }}</td>
-            <td>{{ pais.regiao|default:"—" }}</td>
-            <td>{{ pais.valor_indicador }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="table-responsive">
+        <table class="ranking-table">
+            <tr>
+                <th>#</th>
+                <th>País</th>
+                <th>Região</th>
+                <th>{{ indicador_label }}</th>
+            </tr>
+            {% for pais in paises %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><a class="link-pais" href="{% url 'buscar' %}?q={{ pais.nome|urlencode }}">{{ pais.nome }}</a></td>
+                <td>{{ pais.regiao|default:"—" }}</td>
+                <td>{{ pais.valor_indicador }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 
     <br><br>
 

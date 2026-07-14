@@ -2,12 +2,18 @@
 Testes automatizados para o sistema AGPy.
 Cobre: carregamento de dados, services, models e views.
 """
+from unittest.mock import patch, Mock
+
+import requests
 from django.test import TestCase, Client
 from django.urls import reverse
 
 from geopolitica.models import Pais, Indicador, BlocoInternacional, PerfilGeopolitico
-from geopolitica.services.dados_service import carregar_dados, get_dado_recente, validar_indicador
+from geopolitica.services.dados_service import (
+    carregar_dados, get_dado_recente, validar_indicador, resolver_pais,
+)
 from geopolitica.services.analise_service import detectar_tendencia, prever_proximo_ano, classificar_pais_automaticamente
+from legacy_scripts.api_handler import APIHandler
 
 
 class DadosServiceTest(TestCase):
@@ -49,6 +55,108 @@ class DadosServiceTest(TestCase):
     def test_validar_indicador_invalido(self):
         self.assertEqual(validar_indicador("xpto"), "pib")
         self.assertEqual(validar_indicador(""), "pib")
+
+
+class ApiHandlerTest(TestCase):
+    """
+    Testes do cliente da API do Banco Mundial. Usam mocks (não batem na internet de
+    verdade) justamente para provar, de forma rápida e determinística, que falhas de
+    rede/API não derrubam a aplicação — o bug que causava Erro 500 em produção.
+    """
+
+    def setUp(self):
+        self.api = APIHandler()
+
+    @patch("legacy_scripts.api_handler.requests.get")
+    def test_busca_com_sucesso_retorna_dados(self, mock_get):
+        mock_get.return_value = Mock(status_code=200, json=lambda: [{}, [{"date": "2022", "value": 4.5}]])
+        resultado = self.api.buscar_dados("br", "FP.CPI.TOTL.ZG", fonte="world_bank")
+        self.assertEqual(resultado, [{"date": "2022", "value": 4.5}])
+
+    @patch("legacy_scripts.api_handler.requests.get")
+    def test_erro_de_conexao_nao_lanca_excecao(self, mock_get):
+        mock_get.side_effect = requests.exceptions.ConnectionError("sem rede")
+        resultado = self.api.buscar_dados("br", "FP.CPI.TOTL.ZG", fonte="world_bank")
+        self.assertIsNone(resultado)
+
+    @patch("legacy_scripts.api_handler.requests.get")
+    def test_timeout_nao_lanca_excecao(self, mock_get):
+        mock_get.side_effect = requests.exceptions.Timeout("expirou")
+        resultado = self.api.buscar_dados("br", "FP.CPI.TOTL.ZG", fonte="world_bank")
+        self.assertIsNone(resultado)
+
+    @patch("legacy_scripts.api_handler.requests.get")
+    def test_status_diferente_de_200_retorna_none(self, mock_get):
+        mock_get.return_value = Mock(status_code=503)
+        resultado = self.api.buscar_dados("br", "FP.CPI.TOTL.ZG", fonte="world_bank")
+        self.assertIsNone(resultado)
+
+    @patch("legacy_scripts.api_handler.requests.get")
+    def test_json_invalido_nao_lanca_excecao(self, mock_get):
+        resposta = Mock(status_code=200)
+        resposta.json.side_effect = ValueError("corpo não é JSON válido")
+        mock_get.return_value = resposta
+        resultado = self.api.buscar_dados("br", "FP.CPI.TOTL.ZG", fonte="world_bank")
+        self.assertIsNone(resultado)
+
+    @patch("legacy_scripts.api_handler.requests.get")
+    def test_dados_globais_com_erro_de_rede_retorna_lista_vazia(self, mock_get):
+        mock_get.side_effect = requests.exceptions.Timeout("expirou")
+        resultado = self.api.buscar_dados_globais("NY.GDP.MKTP.CD")
+        self.assertEqual(resultado, [])
+
+
+class ResolverPaisTest(TestCase):
+    """Testes do resolvedor de aliases: o mesmo país deve ser encontrado não importa o termo usado."""
+
+    def test_resolve_por_codigo_iso2_maiusculo(self):
+        resultado = resolver_pais("BR")
+        self.assertEqual(resultado["nome"], "Brasil")
+        self.assertEqual(resultado["fonte"], "local")
+
+    def test_resolve_por_nome_sem_acento_e_minusculo(self):
+        resultado = resolver_pais("india")
+        self.assertEqual(resultado["nome"], "Índia")
+        self.assertEqual(resultado["fonte"], "local")
+
+    def test_resolve_por_nome_local_exato(self):
+        resultado = resolver_pais("Alemanha")
+        self.assertEqual(resultado["fonte"], "local")
+
+    @patch("geopolitica.services.api_service.get_iso2_global")
+    @patch("geopolitica.services.api_service.get_todos_paises_wb")
+    def test_resolve_nome_em_ingles_de_pais_local_vira_identidade_local(self, mock_lista, mock_iso2):
+        # "Brazil" (inglês, vindo da API) precisa achar o mesmo Brasil rico do CSV local,
+        # e não um perfil "global" pobre e desconectado dele.
+        mock_lista.return_value = ["Brazil", "Germany", "Portugal"]
+        mock_iso2.side_effect = lambda nome: {"Brazil": "br", "Germany": "de", "Portugal": "pt"}.get(nome, "")
+
+        resultado = resolver_pais("Brazil")
+        self.assertEqual(resultado, {"id": "BR", "nome": "Brasil", "iso2": "br", "fonte": "local"})
+
+        resultado_alemanha = resolver_pais("germany")
+        self.assertEqual(resultado_alemanha["nome"], "Alemanha")
+        self.assertEqual(resultado_alemanha["fonte"], "local")
+
+    def test_string_vazia_retorna_none(self):
+        self.assertIsNone(resolver_pais(""))
+        self.assertIsNone(resolver_pais(None))
+
+    @patch("geopolitica.services.api_service.get_iso2_global")
+    @patch("geopolitica.services.api_service.get_todos_paises_wb")
+    def test_resolve_pais_global_por_nome(self, mock_lista, mock_iso2):
+        mock_lista.return_value = ["Portugal", "Spain"]
+        mock_iso2.side_effect = lambda nome: {"Portugal": "pt", "Spain": "es"}.get(nome, "")
+        resultado = resolver_pais("portugal")
+        self.assertEqual(resultado, {"id": "PT", "nome": "Portugal", "iso2": "pt", "fonte": "global"})
+
+    @patch("geopolitica.services.api_service.get_iso2_global")
+    @patch("geopolitica.services.api_service.get_todos_paises_wb")
+    def test_termo_desconhecido_retorna_none(self, mock_lista, mock_iso2):
+        mock_lista.return_value = ["Portugal", "Spain"]
+        mock_iso2.return_value = ""
+        resultado = resolver_pais("xxxxxxx-pais-que-nao-existe")
+        self.assertIsNone(resultado)
 
 
 class AnaliseServiceTest(TestCase):

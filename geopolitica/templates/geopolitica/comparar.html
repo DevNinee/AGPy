@@ -7,6 +7,7 @@
     <meta name="description" content="AGPy — Compare indicadores geopolíticos entre dois países.">
     <title>AGPy - Comparar Países</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <script src="{% static 'js/estado-pais.js' %}"></script>
 </head>
 <body>
 
@@ -20,6 +21,7 @@
         <a href="/historico/">Histórico</a>
         <a href="/mapa/">Mapa</a>
         <a href="/classificacao/">Classificação</a>
+        <a href="/buscar/">Buscar</a>
     </nav>
 </header>
 
@@ -27,30 +29,45 @@
 
     <h2 style="text-align: center; margin-bottom: 30px;">Comparação de Países</h2>
 
-    <form method="POST">
+    <form method="POST" id="form-comparar" onsubmit="const btn=this.querySelector('button[type=submit]'); btn.disabled=true; btn.innerHTML='<span class=\'spinner\'></span> Comparando...';">
         {% csrf_token %}
-        <select name="pais1">
-            {% for pais in paises %}
-            <option>{{ pais }}</option>
-            {% endfor %}
-        </select>
+        <div style="display:flex; flex-direction:column; gap:4px; text-align:left;">
+            <label for="select-pais1" style="font-size:0.8rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em;">País 1</label>
+            <select name="pais1" id="select-pais1">
+                {% for pais in paises %}
+                <option {% if resultado.pais1.nome == pais %}selected{% endif %}>{{ pais }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-        <select name="pais2">
-            {% for pais in paises %}
-            <option>{{ pais }}</option>
-            {% endfor %}
-        </select>
+        <span style="color: var(--text-secondary); font-weight: 700; padding-top: 20px;">VS</span>
 
-        <button type="submit">Comparar</button>
+        <div style="display:flex; flex-direction:column; gap:4px; text-align:left;">
+            <label for="select-pais2" style="font-size:0.8rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em;">País 2</label>
+            <select name="pais2" id="select-pais2">
+                {% for pais in paises %}
+                <option {% if resultado.pais2.nome == pais %}selected{% endif %}>{{ pais }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" style="margin-top: 20px;">Comparar</button>
     </form>
+
+    {% if not resultado %}
+    <script>
+        // Pré-preenche a primeira coluna com o país em contexto (selecionado no Mapa ou
+        // na Busca), para o usuário não precisar escolhê-lo de novo.
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.AGPyEstado) {
+                AGPyEstado.preencherSelect(document.getElementById('select-pais1'));
+            }
+        });
+    </script>
+    {% endif %}
 
     {% if resultado %}
     <div class="comparacao">
-
-        {% for side in "12" %}
-        {% with pais=resultado|dictsort:"pais"|first %}
-        {% endwith %}
-        {% endfor %}
 
         <div class="pais-card">
             <h2>{{ resultado.pais1.nome }}</h2>
@@ -74,6 +91,7 @@
             <p><b>Blocos</b> {{ resultado.perfil_p1.blocos|join:", " }}</p>
             {% endif %}
             {% endif %}
+            <a href="{% url 'buscar' %}?q={{ resultado.pais1.nome|urlencode }}" class="btn-acao" style="width:100%; justify-content:center; margin-top:16px; box-sizing:border-box;">Ver perfil completo</a>
         </div>
 
         <div class="pais-card">
@@ -98,6 +116,7 @@
             <p><b>Blocos</b> {{ resultado.perfil_p2.blocos|join:", " }}</p>
             {% endif %}
             {% endif %}
+            <a href="{% url 'buscar' %}?q={{ resultado.pais2.nome|urlencode }}" class="btn-acao" style="width:100%; justify-content:center; margin-top:16px; box-sizing:border-box;">Ver perfil completo</a>
         </div>
 
     </div>

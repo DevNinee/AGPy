@@ -29,12 +29,20 @@ class APIHandler:
         # Ex.: .../country/br/indicator/NY.GDP.MKTP.CD
         url_completa = f"{self.url_base_wb}/country/{pais}/indicator/{indicador}?format=json"
 
-        resposta = requests.get(url_completa)
+        try:
+            resposta = requests.get(url_completa, timeout=10)
+        except requests.exceptions.RequestException as e:
+            print(f"Erro de conexão com o Banco Mundial: {e}")
+            return None
 
         if resposta.status_code == 200:
-            dados = resposta.json()
+            try:
+                dados = resposta.json()
+            except ValueError as e:
+                print(f"Erro ao decodificar resposta do Banco Mundial: {e}")
+                return None
             # O índice 0 traz metadados e o índice 1 os dados de fato
-            if len(dados) > 1 and dados[1]:
+            if isinstance(dados, list) and len(dados) > 1 and dados[1]:
                 return dados[1]
             return None
         else:
@@ -50,14 +58,22 @@ class APIHandler:
         # A ONU usa ISO3 (ex.: BRA), diferente do Banco Mundial, que aceita ISO2 (ex.: br)
         pais_iso3 = pais.upper()
         url_completa = f"{self.url_base_onu}/query?apikey={self.api_key_onu}&countryOrAggregation={pais_iso3}&indicator={indicador}"
-        
+
         if ano:
             url_completa += f"&year={ano}"
-            
-        resposta = requests.get(url_completa)
-        
+
+        try:
+            resposta = requests.get(url_completa, timeout=10)
+        except requests.exceptions.RequestException as e:
+            print(f"Erro de conexão com a ONU: {e}")
+            return None
+
         if resposta.status_code == 200:
-            return resposta.json()
+            try:
+                return resposta.json()
+            except ValueError as e:
+                print(f"Erro ao decodificar resposta da ONU: {e}")
+                return None
         else:
             print(f"Erro da ONU (Status: {resposta.status_code})")
             return None
@@ -69,7 +85,7 @@ class APIHandler:
         """
         url_completa = f"{self.url_base_wb}/country/all/indicator/{indicador}?format=json&date={ano}&per_page=300"
         try:
-            resposta = requests.get(url_completa)
+            resposta = requests.get(url_completa, timeout=10)
             if resposta.status_code == 200:
                 dados = resposta.json()
                 if len(dados) > 1 and dados[1]:

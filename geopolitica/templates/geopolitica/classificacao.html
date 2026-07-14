@@ -9,6 +9,7 @@
         content="AGPy — Classificação geopolítica automatizada com base em indicadores econômicos, políticos e estratégicos.">
     <title>AGPy - Classificação Geopolítica</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <script src="{% static 'js/estado-pais.js' %}"></script>
     <style>
         .class-grid {
             display: grid;
@@ -253,6 +254,7 @@
             <a href="/historico/">Histórico</a>
             <a href="/mapa/">Mapa</a>
             <a href="/classificacao/" class="active">Classificação</a>
+            <a href="/buscar/">Buscar</a>
         </nav>
     </header>
 
@@ -321,6 +323,8 @@
                 {% if pais.observacoes %}
                 <div class="obs">{{ pais.observacoes }}</div>
                 {% endif %}
+
+                <a href="{% url 'buscar' %}?q={{ pais.nome|urlencode }}" class="btn-acao" style="width:100%; justify-content:center; margin-top:16px; box-sizing:border-box;">Ver perfil completo</a>
             </div>
             {% endfor %}
         </div>

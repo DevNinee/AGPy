@@ -7,6 +7,7 @@
     <meta name="description" content="AGPy — Gráficos dinâmicos de indicadores geopolíticos.">
     <title>AGPy - Graficos</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <script src="{% static 'js/estado-pais.js' %}"></script>
 </head>
 <body>
 
@@ -20,6 +21,7 @@
         <a href="/historico/">Histórico</a>
         <a href="/mapa/">Mapa</a>
         <a href="/classificacao/">Classificação</a>
+        <a href="/buscar/">Buscar</a>
     </nav>
 </header>
 
@@ -28,18 +30,19 @@
     <h2>Graficos de Indicadores</h2>
 
     <div class="toolbar">
-        <form id="form-grafico" method="GET" style="display: flex; gap: 10px; align-items: center;">
-            <select name="fonte" onchange="document.getElementById('form-grafico').submit()" style="background:#1c2128; border: 1px solid #388bfd; border-radius:6px; color:#e6edf3; padding: 6px 12px; font-weight:600; cursor:pointer;">
+        <form id="form-grafico" method="GET" style="display: flex; gap: 10px; align-items: center;" onsubmit="this.classList.add('is-loading');">
+            <select name="fonte" onchange="this.form.classList.add('is-loading'); this.form.submit()" style="background:#1c2128; border: 1px solid #388bfd; border-radius:6px; color:#e6edf3; padding: 6px 12px; font-weight:600; cursor:pointer;">
                 <option value="csv" {% if request.GET.fonte == 'csv' or not request.GET.fonte %}selected{% endif %}>Fonte: Top 10 Local (CSV)</option>
                 <option value="api" {% if request.GET.fonte == 'api' %}selected{% endif %}>Fonte: Top 15 Mundo (API)</option>
             </select>
             <span style="color: var(--text-secondary); margin: 0 8px;">|</span>
             <label for="indicador" style="color: var(--text-secondary);">Visualizar por:</label>
-            <select name="indicador" id="indicador" onchange="document.getElementById('form-grafico').submit()">
+            <select name="indicador" id="indicador" onchange="this.form.classList.add('is-loading'); this.form.submit()">
                 {% for ind in indicadores %}
                 <option value="{{ ind.valor }}" {% if indicador_atual == ind.valor %}selected{% endif %}>{{ ind.label }}</option>
                 {% endfor %}
             </select>
+            <span class="form-loading-note"><span class="spinner spinner-dark"></span> Gerando gráfico...</span>
         </form>
     </div>
 

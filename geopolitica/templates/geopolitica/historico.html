@@ -7,6 +7,7 @@
     <meta name="description" content="AGPy — Histórico de inflação por país via API do Banco Mundial.">
     <title>AGPy - Histórico de Inflação</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <script src="{% static 'js/estado-pais.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -21,6 +22,7 @@
         <a href="/historico/" class="active">Histórico</a>
         <a href="/mapa/">Mapa</a>
         <a href="/classificacao/">Classificação</a>
+        <a href="/buscar/">Buscar</a>
     </nav>
 </header>
 
@@ -44,7 +46,7 @@
                 <option value="pib">PIB (Bilhões US$)</option>
             </select>
 
-            <button type="button" onclick="carregarDados()" style="background: var(--accent-blue); color: white; border: none; border-radius: 6px; padding: 10px 20px; margin-left: 16px; cursor: pointer; font-weight: 600;">Buscar Dados</button>
+            <button type="button" id="btn-buscar-dados" onclick="carregarDados()" style="background: var(--accent-blue); color: white; border: none; border-radius: 6px; padding: 10px 20px; margin-left: 16px; cursor: pointer; font-weight: 600;">Buscar Dados</button>
         </form>
     </div>
 
@@ -80,7 +82,11 @@ let chart = null;
 async function carregarDados() {
     const pais = document.getElementById("pais-select").value;
     const indicador = document.getElementById("indicador-select").value;
+    const btn = document.getElementById("btn-buscar-dados");
     document.getElementById("loading").style.display = "block";
+    btn.disabled = true;
+    btn.dataset.textoOriginal = btn.dataset.textoOriginal || btn.textContent;
+    btn.innerHTML = '<span class="spinner"></span> Buscando...';
 
     try {
         const resposta = await fetch(`/historico/dados/?pais=${encodeURIComponent(pais)}&indicador=${indicador}`);
@@ -176,11 +182,19 @@ async function carregarDados() {
     } catch (e) {
         document.getElementById("loading").style.display = "none";
         document.getElementById("info-pais").textContent = "Erro ao buscar dados. Verifique sua conexão.";
+    } finally {
+        btn.disabled = false;
+        btn.textContent = btn.dataset.textoOriginal;
     }
 }
 
-// Carrega Brasil por padrão ao entrar na página
-window.addEventListener("DOMContentLoaded", carregarDados);
+// Ao entrar na página, usa o país em contexto (Mapa/Busca), se houver; senão, Brasil por padrão.
+window.addEventListener("DOMContentLoaded", function () {
+    if (window.AGPyEstado) {
+        AGPyEstado.preencherSelect(document.getElementById("pais-select"));
+    }
+    carregarDados();
+});
 </script>
 
 <footer>

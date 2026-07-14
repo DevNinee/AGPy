@@ -35,7 +35,12 @@
     /* emerald-600 */
     --accent-red: #e11d48;
     /* rose-600 */
+    --accent-violet: #a371f7;
+    /* violet-400 */
+    /* Alias usado por algumas telas (classificação); mantém uma única fonte de verdade */
+    --card-bg: var(--bg-card);
     --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.25);
     --radius: 8px;
     --radius-sm: 6px;
     --transition: 0.25s ease;
@@ -48,9 +53,47 @@ html {
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-main);
+    background-image:
+        radial-gradient(circle at 15% 0%, rgba(37, 99, 235, 0.10), transparent 40%),
+        radial-gradient(circle at 85% 0%, rgba(163, 113, 247, 0.08), transparent 40%);
+    background-attachment: fixed;
     color: var(--text-primary);
     min-height: 100vh;
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+    background: rgba(37, 99, 235, 0.35);
+    color: var(--text-primary);
+}
+
+/* Scrollbar discreta, coerente com o tema escuro */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-hover);
+    border-radius: 20px;
+    border: 2px solid var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
 }
 
 /* === HEADER & NAV === */
@@ -96,7 +139,8 @@ header h1::before {
 
 nav {
     display: flex;
-    gap: 8px;
+    gap: 4px;
+    flex-wrap: wrap;
     justify-content: center;
 }
 
@@ -228,15 +272,37 @@ nav a:hover {
     color: var(--accent-blue);
 }
 
+/* === TABELA RESPONSIVA (permite rolagem horizontal em telas pequenas sem quebrar o layout) === */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: var(--radius);
+    -webkit-overflow-scrolling: touch;
+}
+
 /* === TABELA DE RANKING === */
 .ranking-table {
     width: 100%;
+    min-width: 520px;
     border-collapse: collapse;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: var(--shadow);
+}
+
+.ranking-table a.link-pais {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: var(--transition);
+}
+
+.ranking-table a.link-pais:hover {
+    color: #58a6ff;
+    border-bottom-color: #58a6ff;
 }
 
 .ranking-table th {
@@ -328,6 +394,56 @@ button[type="submit"]:hover {
 
 button[type="submit"]:active {
     transform: translateY(0);
+}
+
+button[type="submit"]:disabled,
+button.is-loading {
+    opacity: 0.7;
+    cursor: wait;
+    pointer-events: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Spinner usado em botões e formulários durante carregamento (fetch / submit) */
+@keyframes girar-spinner {
+    to { transform: rotate(360deg); }
+}
+
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: girar-spinner 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+.spinner-dark {
+    border-color: rgba(148, 163, 184, 0.35);
+    border-top-color: var(--text-primary);
+}
+
+/* Selo de "carregando" para filtros com auto-submit (fonte/indicador/região) */
+.form-loading-note {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+form.is-loading .form-loading-note {
+    display: inline-flex;
+}
+
+form.is-loading select,
+form.is-loading button[type="submit"] {
+    opacity: 0.6;
+    pointer-events: none;
 }
 
 /* === CARDS DE COMPARAÇÃO === */
@@ -568,5 +684,45 @@ footer .footer-sources {
     select,
     button[type="submit"] {
         width: 100%;
+    }
+
+    .container {
+        width: 94%;
+        padding: 24px 0;
+    }
+
+    .container h2 {
+        font-size: 1.4rem;
+    }
+
+    .ranking-table th,
+    .ranking-table td {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .toolbar {
+        padding: 14px 16px;
+    }
+
+    .toolbar form {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pais-card {
+        min-width: 0;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .perfil-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .perfil-acoes {
+        justify-content: center;
     }
 }

@@ -7,6 +7,7 @@
     <meta name="description" content="AGPy — Busca e perfil completo de países.">
     <title>AGPy - Resultado: {{ query }}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <script src="{% static 'js/estado-pais.js' %}"></script>
 </head>
 <body>
 
@@ -20,6 +21,7 @@
         <a href="/historico/">Histórico</a>
         <a href="/mapa/">Mapa</a>
         <a href="/classificacao/">Classificação</a>
+        <a href="/buscar/" class="active">Buscar</a>
     </nav>
 </header>
 
@@ -48,6 +50,19 @@
     {% endif %}
 
     {% if resultado %}
+    <script>
+        // País resolvido nesta página vira o estado global: Comparar, Histórico e o Mapa
+        // vão reconhecê-lo automaticamente nas próximas navegações, sem exigir nova seleção.
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.AGPyEstado) {
+                AGPyEstado.definirPaisAtual({
+                    id: "{{ resultado.iso2|default:''|escapejs }}",
+                    nome: "{{ resultado.nome|escapejs }}",
+                    iso2: "{{ resultado.iso2|default:''|escapejs }}",
+                });
+            }
+        });
+    </script>
     <!-- Cabeçalho do Perfil -->
     <div class="perfil-header">
         <!-- Bandeira Dinâmica usando ISO2 retornado pela View -->
@@ -179,6 +194,18 @@
     {% endif %}
 
     {% elif not query %}
+    <script>
+        // Sem busca explícita: se já existe um país em contexto (selecionado no Mapa ou
+        // numa busca anterior), carrega o perfil dele direto, em vez do estado vazio.
+        (function () {
+            if (window.AGPyEstado) {
+                const paisAtual = AGPyEstado.obterPaisAtual();
+                if (paisAtual && paisAtual.nome) {
+                    window.location.replace('{% url "buscar" %}?q=' + encodeURIComponent(paisAtual.nome));
+                }
+            }
+        })();
+    </script>
     <!-- EMPTY STATE -->
     <div style="text-align: center; padding: 60px 20px;">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px; opacity: 0.5;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
