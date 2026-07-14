@@ -256,12 +256,12 @@ def mapa(request):
     paises_json = []
     cores_paises = {}
     paises_regiao = []
-    regioes = sorted(df["regiao"].unique().tolist())
 
     if fonte == "api":
-        from geopolitica.services.api_service import get_todos_paises_wb
+        from geopolitica.services.api_service import get_todos_paises_wb, get_regiao_global, get_regioes_wb
         paises_validos = set(get_todos_paises_wb())
-        
+        regioes = get_regioes_wb()
+
         wb_indicador = CODIGOS_API_WB.get(indicador, "NY.GDP.MKTP.CD")
         dados_globais = buscar_dados_globais_cached(wb_indicador, ano=2022)
 
@@ -282,27 +282,36 @@ def mapa(request):
         if valores_validos:
             v_max = max(valores_validos)
             v_min = min(valores_validos)
-            
+
             for item in mapa_global:
                 iso3 = item['iso3']
                 valor = item['valor']
-                
+                nome = item['nome']
+                regiao_pais = get_regiao_global(nome)
+                # Só colore pela escala do indicador os países da região escolhida;
+                # o resto fica cinza (mesmo tratamento visual do modo CSV local).
+                na_regiao = (not regiao_filtro) or (regiao_filtro.lower() in regiao_pais.lower())
+
                 paises_json.append({
-                    "nome": item['nome'],
+                    "nome": nome,
                     "pib": valor if indicador == "pib" else "N/A",
                     "inflacao": valor if indicador == "inflacao" else "N/A",
                     "iso3": iso3,
                     "iso2": _iso3_para_iso2(iso3),
+                    "regiao": regiao_pais,
                 })
 
-                cor = _cor_por_indicador_global(indicador, valor, v_min, v_max)
-                cores_paises[item['nome']] = cor
+                cor = _cor_por_indicador_global(indicador, valor, v_min, v_max) if na_regiao else "#30363d"
+                cores_paises[nome] = cor
                 cores_paises[iso3] = cor
 
             top_all = sorted(mapa_global, key=lambda x: x['valor'], reverse=True)
+            if regiao_filtro:
+                top_all = [x for x in top_all if regiao_filtro.lower() in get_regiao_global(x['nome']).lower()]
             paises_regiao = [{"nome": x['nome'], indicador: x['valor']} for x in top_all]
 
     else:
+        regioes = sorted(df["regiao"].unique().tolist())
         paises_json = df.to_dict(orient="records")
         for p in paises_json:
             p["iso2"] = get_sigla_iso2(p["nome"])

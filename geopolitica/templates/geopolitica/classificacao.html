@@ -226,11 +226,19 @@
         }
 
         .bloco-membro {
+            display: inline-block;
             background: rgba(56, 139, 253, 0.1);
             color: #388bfd;
             padding: 2px 8px;
             border-radius: 4px;
             font-size: 0.75rem;
+            border-bottom: none !important;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .bloco-membro:hover {
+            background: rgba(56, 139, 253, 0.25);
+            color: #58a6ff;
         }
 
         .flag-icon {
@@ -274,7 +282,7 @@
                 <h3>
                     <img src="https://flagcdn.com/w40/{{ pais.iso2 }}.png" width="24" height="16" alt="{{ pais.nome }}" class="flag-icon"
                         onerror="this.style.display='none'">
-                    {{ pais.nome }}
+                    <a href="{% url 'buscar' %}?q={{ pais.nome|urlencode }}" class="link-pais">{{ pais.nome }}</a>
                     <span class="badge badge-{{ pais.classificacao_cod|lower }}">
                         {{ pais.classificacao }}
                     </span>
@@ -347,7 +355,7 @@
                     <div class="desc">{{ bloco.descricao }}</div>
                     <div class="bloco-membros">
                         {% for membro in bloco.membros %}
-                        <span class="bloco-membro">{{ membro }}</span>
+                        <a href="{% url 'buscar' %}?q={{ membro|urlencode }}" class="bloco-membro link-pais">{{ membro }}</a>
                         {% endfor %}
                     </div>
                 </div>

@@ -70,7 +70,7 @@
     <div class="comparacao">
 
         <div class="pais-card">
-            <h2>{{ resultado.pais1.nome }}</h2>
+            <h2><a href="{% url 'buscar' %}?q={{ resultado.pais1.nome|urlencode }}" class="link-pais">{{ resultado.pais1.nome }}</a></h2>
             <p><b>Região</b> {{ resultado.pais1.regiao }}</p>
             <p><b>PIB</b> {{ resultado.pais1.pib }}</p>
             <p><b>Inflação</b> {{ resultado.pais1.inflacao }}</p>
@@ -95,7 +95,7 @@
         </div>
 
         <div class="pais-card">
-            <h2>{{ resultado.pais2.nome }}</h2>
+            <h2><a href="{% url 'buscar' %}?q={{ resultado.pais2.nome|urlencode }}" class="link-pais">{{ resultado.pais2.nome }}</a></h2>
             <p><b>Região</b> {{ resultado.pais2.regiao }}</p>
             <p><b>PIB</b> {{ resultado.pais2.pib }}</p>
             <p><b>Inflação</b> {{ resultado.pais2.inflacao }}</p>

@@ -68,13 +68,17 @@ def get_todos_paises_wb():
                 # Guarda também o mapa nome -> iso2 para resolver siglas depois
                 mapa_global = {p['name']: p['iso2Code'].lower() for p in paises if p.get('iso2Code')}
                 _cache["mapa_global_iso2"] = (mapa_global, __import__('time').time())
-                
+
+                # E o mapa nome -> região (usado para filtrar o mapa por região no modo API)
+                mapa_regiao = {p['name']: p.get('region', {}).get('value', '').strip() for p in paises}
+                _cache["mapa_global_regiao"] = (mapa_regiao, __import__('time').time())
+
                 paises_nomes = sorted([p['name'] for p in paises])
                 _cache[cache_key] = (paises_nomes, __import__('time').time())
                 return paises_nomes
     except Exception as e:
         print("Erro get_todos_paises_wb:", e)
-    
+
     return []
 
 def get_iso2_global(nome_pais):
@@ -83,3 +87,21 @@ def get_iso2_global(nome_pais):
         mapa, _ = _cache["mapa_global_iso2"]
         return mapa.get(nome_pais, "")
     return ""
+
+
+def get_regiao_global(nome_pais):
+    """Região (World Bank) de um país do universo global. Ex.: 'Latin America & Caribbean'."""
+    get_todos_paises_wb()
+    if "mapa_global_regiao" in _cache:
+        mapa, _ = _cache["mapa_global_regiao"]
+        return mapa.get(nome_pais, "")
+    return ""
+
+
+def get_regioes_wb():
+    """Lista de regiões distintas do universo global, para popular o filtro do mapa no modo API."""
+    get_todos_paises_wb()
+    if "mapa_global_regiao" in _cache:
+        mapa, _ = _cache["mapa_global_regiao"]
+        return sorted({regiao for regiao in mapa.values() if regiao})
+    return []
